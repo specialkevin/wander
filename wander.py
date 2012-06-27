@@ -7,11 +7,11 @@ def read_config():
   parser.read(os.path.expanduser('~/.wander.cfg'))
   return parser.items('zimbra')
 
-def make_request(settings, username, data_after):
+def make_request(settings, username, data_type):
   base_url = settings['server'] + ':' + settings['port'] + '/home/' + username
-  if data_after == 'contacts':
+  if data_type == 'contacts':
     url = base_url + '/contacts'
-  elif data_after == 'calendar':
+  elif data_type == 'calendar':
     url = base_url + '/calendar'
   else:
     return
@@ -19,10 +19,10 @@ def make_request(settings, username, data_after):
   content = r.content
   return content
 
-def file_write(username, data_after, content):
-  if data_after == 'contacts':
+def file_write(username, data_type, content):
+  if data_type == 'contacts':
     filename = username+'_contacts.csv'
-  elif data_after == 'calendar':
+  elif data_type == 'calendar':
     filename = username+'_calendar.ics'
   else:
     return
@@ -32,15 +32,15 @@ def file_write(username, data_after, content):
   return
 
 def get_user_contacts(username, settings):
-  data_after = 'contacts'
-  content = make_request(settings, username, data_after)
-  file_write(username, data_after, content)
+  data_type = 'contacts'
+  content = make_request(settings, username, data_type)
+  file_write(username, data_type, content)
   return
 
 def get_user_calendar(username, settings):
-  data_after = 'calendar'
-  content = make_request(settings, username, data_after)
-  file_write(username, data_after, content)
+  data_type = 'calendar'
+  content = make_request(settings, username, data_type)
+  file_write(username, data_type, content)
   return
 
 
