@@ -45,12 +45,6 @@ def get_user_calendar(username, settings):
   file_write(username, data_type, content)
   return
 
-def get_contacts(user, settings):
-  print user
-  print
-  print settings
-  return  
-
 def parse_commands(settings):
   parser = argparse.ArgumentParser()
   subparsers = parser.add_subparsers()
