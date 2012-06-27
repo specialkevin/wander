@@ -1,6 +1,8 @@
 from ConfigParser import SafeConfigParser
 import os.path
 import requests
+import argparse
+
 
 def read_config():
   parser = SafeConfigParser()
@@ -43,9 +45,28 @@ def get_user_calendar(username, settings):
   file_write(username, data_type, content)
   return
 
+def get_contacts(user, settings):
+  print user
+  print
+  print settings
+  return  
+
+def parse_commands(settings):
+  parser = argparse.ArgumentParser()
+  subparsers = parser.add_subparsers()
+
+  parser_contacts = subparsers.add_parser('contacts')
+  parser_contacts.add_argument('user')
+  parser_contacts.set_defaults(func=get_user_contacts)
+
+  parser_calendar = subparsers.add_parser('calendar')
+  parser_calendar.add_argument('user')
+  parser_calendar.set_defaults(func=get_user_calendar)
+
+  args = parser.parse_args()
+  args.func(args.user, settings)
+  return
 
 if  __name__ == "__main__":
   settings = dict(read_config())
-  #print settings
-  get_user_contacts('kharriss',settings)
-  get_user_calendar('kharriss',settings)
+  parse_commands(settings)
