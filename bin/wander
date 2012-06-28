@@ -5,11 +5,34 @@ import os.path
 import requests
 import argparse
 
+from fabric.api import run, env
+from fabric.context_managers import settings, hide
 
-def read_config():
+def get_user_info(fabric_settings, user, desired_info):
+  command = fabric_settings['zmprov_path'] + ' ga '+ user
+  for i in desired_info:
+    command = command + ' ' + i
+  output = make_fabric_call(fabric_settings, command)
+  return output
+
+def get_account_list(fabric_settings):
+  command = fabric_settings['zmprov_path'] + ' -l  gaa'
+  output = make_fabric_call(fabric_settings, command)
+  return output
+
+def make_fabric_call(fabric_settings, command):
+  with settings(
+    hide('stdout','running'),
+    host_string = fabric_settings['server'], user = fabric_settings['zimbra_user'],
+    key_filename = os.path.expanduser(fabric_settings['keypath'])
+  ):
+    output = run(command)
+  return output
+
+def read_config(section):
   parser = SafeConfigParser()
   parser.read(os.path.expanduser('~/.wander.cfg'))
-  return parser.items('zimbra')
+  return parser.items(section)
 
 def make_request(settings, username, data_type):
   base_url = settings['server'] + ':' + settings['port'] + '/home/' + username
@@ -72,6 +95,9 @@ def parse_commands(settings):
   return
 
 if  __name__ == "__main__":
-  settings = dict(read_config())
-  settings['keypath'] = os.path.expanduser(settings['keypath'])
-  parse_commands(settings)
+  zimbra_settings = dict(read_config('zimbra'))
+  fabric_settings = dict(read_config('fabric'))
+  #parse_commands(zimbra_settings)
+  #out = get_user_info(fabric_settings, 'kharriss', ['givenName','sn'])
+  out = get_account_list(fabric_settings)
+  print out
