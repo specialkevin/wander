@@ -20,6 +20,9 @@ def get_account_list(fabric_settings):
   output = make_fabric_call(fabric_settings, command)
   return output
 
+def save_account_list(fabric_settings):
+  return save('accounts',get_account_list(fabric_settings))
+
 def make_fabric_call(fabric_settings, command):
   with settings(
     hide('stdout','running'),
@@ -46,11 +49,13 @@ def make_request(settings, username, data_type):
   content = r.content
   return content
 
-def file_write(username, data_type, content):
-  if data_type == 'contacts':
+def save(data_type, content, username=None):
+  if data_type == 'contacts' and username:
     filename = username+'_contacts.csv'
-  elif data_type == 'calendar':
+  elif data_type == 'calendar' and username:
     filename = username+'_calendar.ics'
+  elif data_type == 'accounts':
+    filename = 'accounts.txt'
   else:
     return
   f = open(filename,'w')
@@ -62,7 +67,7 @@ def get_user_contacts(username, settings):
   data_type = 'contacts'
   if username:
     content = make_request(settings, username, data_type)
-    file_write(username, data_type, content)
+    save(data_type, content, username)
     return
   else:
     print "OH NOES"
@@ -72,7 +77,7 @@ def get_user_calendar(username, settings):
   data_type = 'calendar'
   if username:
     content = make_request(settings, username, data_type)
-    file_write(username, data_type, content)
+    save(data_type, content, username)
     return
   else:
     print "OH NOES"
@@ -99,5 +104,6 @@ if  __name__ == "__main__":
   fabric_settings = dict(read_config('fabric'))
   #parse_commands(zimbra_settings)
   #out = get_user_info(fabric_settings, 'kharriss', ['givenName','sn'])
-  out = get_account_list(fabric_settings)
-  print out
+  #out = get_account_list(fabric_settings)
+  #print out
+  save_account_list(fabric_settings)
