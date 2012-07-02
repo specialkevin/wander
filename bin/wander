@@ -12,8 +12,17 @@ def get_user_info(fabric_settings, user, desired_info):
   command = fabric_settings['zmprov_path'] + ' ga '+ user
   for i in desired_info:
     command = command + ' ' + i
+
   output = make_fabric_call(fabric_settings, command)
-  return output
+  output = output.splitlines()
+  output.pop(0)
+  info = {}
+  info.update({'username' : user})
+  for value in output:
+    value = [x.strip() for x in value.split(':')]
+    info.update({value[0] : value[1]})
+
+  return info
 
 def get_account_list(fabric_settings, username=None):
   command = fabric_settings['zmprov_path'] + ' -l  gaa'
@@ -23,9 +32,10 @@ def get_account_list(fabric_settings, username=None):
 def get_all_user_info(fabric_settings, username=None):
   return
 
-def get_inactive_accounts(fabric_settings):
-  command = fabric_settings['zmaccts_path']
-  output = make_fabric_call(fabric_settings, command)
+def get_user_list_info(fabric_settings, user_list, desired_info):
+  output = []
+  for i in user_list:
+    output.append(get_user_info(fabric_settings, i, desired_info))
   return output
 
 def get_usernames(fabric_settings):
@@ -125,8 +135,7 @@ def parse_commands(zimbra_settings, fabric_settings):
 if  __name__ == "__main__":
   zimbra_settings = dict(read_config('zimbra'))
   fabric_settings = dict(read_config('fabric'))
-  parse_commands(zimbra_settings, fabric_settings)
-  #out = get_user_info(fabric_settings, 'kharriss', ['givenName','sn'])
-  #out = get_account_list(fabric_settings)
-  #print get_inactive_accounts(fabric_settings)
-  #save_usernames(fabric_settings)
+  #parse_commands(zimbra_settings, fabric_settings)
+  user_list = ['kharriss', 'cezar', 'alon2']
+  desired_info = ['givenName','sn']
+  print get_user_list_info(fabric_settings, user_list, desired_info)
