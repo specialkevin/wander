@@ -47,7 +47,7 @@ def get_usernames(fabric_settings):
 
 def save_user_list_info(fabric_settings, user_list):
   if user_list:
-    desired_info = ['givenName','sn']
+    desired_info = ['givenName','sn','displayName']
     f = open('userinfo.csv','w')
     content = get_user_list_info(fabric_settings, user_list, desired_info)
     f.write('username,'+','.join(desired_info)+'\n')
