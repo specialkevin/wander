@@ -161,6 +161,6 @@ def get_mail(settings, username):
 
 def auth_google(settings):
     google_client = client.AppsClient(domain=settings['domain'])
+    google_client.ssl = True
     google_client.ClientLogin(email=settings['email'], password=settings['password'], source='apps')
-    print google_client.RetrieveAllUsers()
-    return
+    return google_client
