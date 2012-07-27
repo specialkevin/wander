@@ -3,6 +3,8 @@ import os.path
 import requests
 import argparse
 import imaplib
+from sys import stderr
+from sys import exit
 
 from fabric.api import run, env
 from fabric.context_managers import settings, hide
@@ -35,8 +37,8 @@ def get_user_list_info(fabric_settings, user_list, desired_info):
             output.append(get_user_info(fabric_settings, i, desired_info))
         return output
     else:
-        print 'OH NOES'
-        return
+        stderr.write('OH NOES, No userlist\n')
+        exit(1)
 
 def get_usernames(fabric_settings):
     output = get_account_list(fabric_settings).splitlines()
@@ -56,8 +58,8 @@ def save_user_list_info(fabric_settings, user_list):
         f.close()
         return
     else:
-        print 'OH NOES'
-        return
+        stderr.write('OH NOES, No userlist\n')
+        exit(1)
 
 def save_usernames(fabric_settings):
     return save('usernames', get_usernames(fabric_settings))
@@ -118,22 +120,25 @@ def save(data_type, content, username=None):
 def get_user_contacts(settings, username=None):
     data_type = 'contacts'
     if username:
+        username = username[0]
         content = make_request(settings, username, data_type)
         save(data_type, content, username)
         return
     else:
-        print "OH NOES"
-        return
-
+        stderr.write('No username given\n')
+        exit(1)
+        
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'
     if username:
+        username = username[0]
         content = make_request(settings, username, data_type)
         save(data_type, content, username)
         return
     else:
-        print "OH NOES"
-        return
+        stderr.write('No username given\n')
+        exit(1)
+        
 
 def login_plain(imap, user, password, authuser=None):
     def plain_callback(response):
@@ -150,9 +155,10 @@ def imap_connect(settings, user):
 
 def get_mail(settings, username):
     if username:
+        username = username[0]
         imap = imap_connect(settings, username)
         print imap.list()
         return
     else:
-        print "OH NOES, YOU NEED TO ENTER A USER TO MIGRATE"
-        return
+        stderr.write("OH NOES, no user given\n")
+        exit(1)
