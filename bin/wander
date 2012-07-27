@@ -4,6 +4,7 @@ from ConfigParser import SafeConfigParser
 import os.path
 import requests
 import argparse
+import imaplib
 
 from fabric.api import run, env
 from fabric.context_managers import settings, hide
@@ -136,6 +137,19 @@ def get_user_calendar(settings, username=None):
     print "OH NOES"
     return
 
+def login_plain(imap, user, password, authuser=None):
+  def plain_callback(response):
+    if authuser is None:
+      return "%s\00%s\x00%s" % (user, user, password)
+    else:
+      return "%s\x00%s\x00%s" % (user, authuser, password)
+  return imap.authenticate('PLAIN', plain_callback)
+
+def imap_connect(settings, user):
+  imapconn = imaplib.IMAP4_SSL(settings['host'], 993)
+  login_plain(imapconn, user, settings['password'], settings['admin'])
+  return imapconn
+
 def parse_commands(zimbra_settings, fabric_settings):
   parser = argparse.ArgumentParser()
   subparsers = parser.add_subparsers()
@@ -166,4 +180,7 @@ def parse_commands(zimbra_settings, fabric_settings):
 if  __name__ == "__main__":
   zimbra_settings = dict(read_config('zimbra'))
   fabric_settings = dict(read_config('fabric'))
-  parse_commands(zimbra_settings, fabric_settings)
+  imap_settings = dict(read_config('imap'))
+
+  imap = imap_connect(imap_settings, 'kharriss')
+  print imap.list()
