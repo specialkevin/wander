@@ -120,6 +120,7 @@ def save(data_type, content, username=None):
 def get_user_contacts(settings, username=None):
     data_type = 'contacts'
     if username:
+        username = username[0]
         content = make_request(settings, username, data_type)
         save(data_type, content, username)
         return
@@ -130,6 +131,7 @@ def get_user_contacts(settings, username=None):
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'
     if username:
+        username = username[0]
         content = make_request(settings, username, data_type)
         save(data_type, content, username)
         return
@@ -153,6 +155,7 @@ def imap_connect(settings, user):
 
 def get_mail(settings, username):
     if username:
+        username = username[0]
         imap = imap_connect(settings, username)
         print imap.list()
         return
