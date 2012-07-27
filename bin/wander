@@ -24,7 +24,8 @@ def parse_commands(zimbra_settings, fabric_settings):
     parser_info.set_defaults(func=save_user_list_info, settings=fabric_settings, user=None)
 
     args = parser.parse_args()
-    if args.path:
+
+    if getattr(args, 'path', False):
         args.user = read_user_list_file(os.path.expanduser(args.path))
         parser.set_defaults(func=save_user_list_info, settings=fabric_settings, user=args.user)
     args.func(args.settings, args.user)
