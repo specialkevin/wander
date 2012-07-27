@@ -83,7 +83,7 @@ def read_user_list_file(path):
 
 def read_config(section):
     parser = SafeConfigParser()
-    parser.read(os.path.expanduser('~/.wander.cfg'))
+    parser.read(['/etc/wander.cfg', os.path.expanduser('~/wander.cfg'), os.path.expanduser('~/.wander.cfg')])
     return parser.items(section)
 
 def make_request(settings, username, data_type):
