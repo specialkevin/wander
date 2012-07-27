@@ -148,29 +148,3 @@ def imap_connect(settings, user):
     login_plain(imapconn, user, settings['password'], settings['admin'])
     return imapconn
 
-def parse_commands(zimbra_settings, fabric_settings):
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
-
-    parser_contacts = subparsers.add_parser('contacts')
-    parser_contacts.add_argument('user', nargs='?', default=None)
-    parser_contacts.set_defaults(func=get_user_contacts, settings=zimbra_settings)
-
-    parser_calendar = subparsers.add_parser('calendar')
-    parser_calendar.add_argument('user', nargs='?', default=None)
-    parser_calendar.set_defaults(func=get_user_calendar, settings=zimbra_settings)
-
-    parser_accounts = subparsers.add_parser('accounts')
-    parser_accounts.set_defaults(func=save_account_list, settings=fabric_settings, user=None)
-
-    parser_info = subparsers.add_parser('info')
-    parser_info.add_argument('-f', nargs='?', default=None, dest='path')
-    parser_info.add_argument('user', nargs='*', default=None)
-    parser_info.set_defaults(func=save_user_list_info, settings=fabric_settings, user=None)
-
-    args = parser.parse_args()
-    if args.path:
-        args.user = read_user_list_file(os.path.expanduser(args.path))
-        parser.set_defaults(func=save_user_list_info, settings=fabric_settings, user=args.user)
-    args.func(args.settings, args.user)
-    return
