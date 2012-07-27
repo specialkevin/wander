@@ -7,6 +7,8 @@ import imaplib
 from fabric.api import run, env
 from fabric.context_managers import settings, hide
 
+from gdata.apps import client
+
 def get_user_info(fabric_settings, user, desired_info):
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
@@ -156,3 +158,9 @@ def get_mail(settings, username):
     else:
         print "OH NOES, YOU NEED TO ENTER A USER TO MIGRATE"
         return
+
+def auth_google(settings):
+    google_client = client.AppsClient(domain=settings['domain'])
+    google_client.ClientLogin(email=settings['email'], password=settings['password'], source='apps')
+    print google_client.RetrieveAllUsers()
+    return
