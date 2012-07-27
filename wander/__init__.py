@@ -148,3 +148,11 @@ def imap_connect(settings, user):
     login_plain(imapconn, user, settings['password'], settings['admin'])
     return imapconn
 
+def get_mail(settings, username):
+    if username:
+        imap = imap_connect(settings, username)
+        print imap.list()
+        return
+    else:
+        print "OH NOES, YOU NEED TO ENTER A USER TO MIGRATE"
+        return

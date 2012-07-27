@@ -3,7 +3,7 @@
 from wander import *
 import argparse
 
-def parse_commands(zimbra_settings, fabric_settings):
+def parse_commands(zimbra_settings, fabric_settings, imap_settings):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
@@ -17,6 +17,10 @@ def parse_commands(zimbra_settings, fabric_settings):
 
     parser_accounts = subparsers.add_parser('accounts')
     parser_accounts.set_defaults(func=save_account_list, settings=fabric_settings, user=None)
+
+    parser_mail = subparsers.add_parser('mail')
+    parser_mail.add_argument('user', nargs='?', default=None)
+    parser_mail.set_defaults(func=get_mail, settings=imap_settings, user=None)
 
     parser_info = subparsers.add_parser('info')
     parser_info.add_argument('-f', nargs='?', default=None, dest='path')
@@ -36,4 +40,4 @@ if __name__ == "__main__":
     fabric_settings = dict(read_config('fabric'))
     imap_settings = dict(read_config('imap'))
 
-    parse_commands(zimbra_settings, fabric_settings)
+    parse_commands(zimbra_settings, fabric_settings, imap_settings)
