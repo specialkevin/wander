@@ -4,6 +4,8 @@ import requests
 import argparse
 import imaplib
 
+import gdata
+
 import csv
 
 from sys import stderr
@@ -151,7 +153,12 @@ def print_user_contacts(settings, username=None):
     print "============================"
     print "CONTACTS FROM GOOGLE"
     print "============================"
-    google_contacts = wander.google.Contacts(settings)
+    try:
+        email = username[0]+'@'+settings['google_domain']
+        google_contacts = wander.google.Contacts(email, settings)
+    except gdata.client.BadAuthentication:
+        stderr.write('Bad Login Credentials for Google Apps.\n')
+        exit(1)
     print google_contacts.list_contacts()
        
 def get_user_calendar(settings, username=None):
