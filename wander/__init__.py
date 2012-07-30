@@ -14,6 +14,8 @@ from fabric.context_managers import settings, hide
 
 from gdata.apps import client
 
+import wander.google
+
 def get_user_info(fabric_settings, user, desired_info):
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
@@ -146,6 +148,11 @@ def get_user_contacts(settings, username=None):
 
 def print_user_contacts(settings, username=None):
     print get_user_contacts(settings, username)
+    print "============================"
+    print "CONTACTS FROM GOOGLE"
+    print "============================"
+    google_contacts = wander.google.Contacts(settings)
+    print google_contacts.list_contacts()
        
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'

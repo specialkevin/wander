@@ -3,13 +3,13 @@
 from wander import *
 import argparse
 
-def parse_commands(zimbra_settings, fabric_settings, imap_settings):
+def parse_commands(zimbra_settings, fabric_settings, imap_settings, google_settings):
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     parser_contacts = subparsers.add_parser('contacts')
     parser_contacts.add_argument('user', nargs=1, default=None)
-    parser_contacts.set_defaults(func=print_user_contacts, settings=zimbra_settings)
+    parser_contacts.set_defaults(func=print_user_contacts, settings=dict(zimbra_settings.items() + google_settings.items()))
 
     parser_calendar = subparsers.add_parser('calendar')
     parser_calendar.add_argument('user', nargs=1, default=None)
@@ -39,5 +39,6 @@ if __name__ == "__main__":
     zimbra_settings = dict(read_config('zimbra'))
     fabric_settings = dict(read_config('fabric'))
     imap_settings = dict(read_config('imap'))
-
-    parse_commands(zimbra_settings, fabric_settings, imap_settings)
+    google_settings = dict(read_config('google'))
+    
+    parse_commands(zimbra_settings, fabric_settings, imap_settings, google_settings)
