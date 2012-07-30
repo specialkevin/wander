@@ -9,7 +9,7 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings):
 
     parser_contacts = subparsers.add_parser('contacts')
     parser_contacts.add_argument('user', nargs=1, default=None)
-    parser_contacts.set_defaults(func=get_user_contacts, settings=zimbra_settings)
+    parser_contacts.set_defaults(func=print_user_contacts, settings=zimbra_settings)
 
     parser_calendar = subparsers.add_parser('calendar')
     parser_calendar.add_argument('user', nargs=1, default=None)

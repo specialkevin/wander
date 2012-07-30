@@ -3,6 +3,9 @@ import os.path
 import requests
 import argparse
 import imaplib
+
+import csv
+
 from sys import stderr
 from sys import exit
 
@@ -129,11 +132,25 @@ def get_user_contacts(settings, username=None):
         username = username[0]
         content = make_request(settings, username, data_type)
         save(data_type, content, username)
-        return
+        filename = username+'_contacts.csv'
+        data = csv.reader(open(filename))
+        fields = data.next()
+        contacts = []
+        for row in data:
+            items = zip(fields, row)
+            item = {}
+            for (name, value) in items:
+                item[name] = value.strip()
+            contacts.append(item)
+        os.remove(filename)
+        return contacts
     else:
         stderr.write('No username given\n')
         exit(1)
-        
+
+def print_user_contacts(settings, username=None):
+    print get_user_contacts(settings, username)
+       
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'
     if username:
