@@ -19,8 +19,8 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings):
     parser_accounts.set_defaults(func=save_account_list, settings=fabric_settings, user=None)
 
     parser_mail = subparsers.add_parser('mail')
-    parser_mail.add_argument('user', nargs=1, default=None)
-    parser_mail.set_defaults(func=get_mail, settings=imap_settings, user=None)
+    parser_mail.add_argument('userfile', nargs=1, default=None)
+    parser_mail.set_defaults(func=get_mail, settings=imap_settings, userfile=None, command = 'mail')
 
     parser_info = subparsers.add_parser('info')
     parser_info.add_argument('-f', nargs='*', default=None, dest='path')
@@ -29,6 +29,12 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings):
 
     args = parser.parse_args()
 
+    if getattr(args, 'command', False):
+        if args.command == 'mail':
+            get_mail(args.settings, args.userfile)
+
+        return
+    
     if getattr(args, 'path', False):
         args.user = read_user_list_file(os.path.expanduser(args.path))
         parser.set_defaults(func=save_user_list_info, settings=fabric_settings, user=args.user)

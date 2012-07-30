@@ -155,15 +155,15 @@ def imap_connect(settings, user):
     login_plain(imapconn, user, settings['password'], settings['admin'])
     return imapconn
 
-def get_mail(settings, username):
-    if username:
-        username = username[0]
-        imap = imap_connect(settings, username)
-        print imap.list()
-        return
-    else:
-        stderr.write("OH NOES, no user given\n")
-        exit(1)
+def get_mail(settings, userfile):
+    '''
+    For each user, get a list of message ids and send them to celery to process
+    '''
+    with open(userfile[0]) as f:
+        for user in f.readlines():
+            imap = imap_connect(settings, user)
+            print imap.list()
+
 
 def auth_google(settings):
     google_client = client.AppsClient(domain=settings['domain'])
