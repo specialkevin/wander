@@ -1,0 +1,18 @@
+[zimbra]
+username = administrator
+password = VerySecurePassword
+server = https://example.com
+port = 1234
+zimbra_user = zimbra_user
+
+[fabric]
+server = example.com
+zimbra_user = zimbra_user
+keypath = ~/.ssh/zimbra_keys
+zmprov_path = /opt/zimbra/bin/zmprov
+zmaccts_path = /opt/zimbra/bin/zmaccts
+
+[imap]
+host = example.com
+admin = administration
+password = VerySecurePassword
