@@ -16,8 +16,6 @@ from gdata.apps import client
 
 from wander.tasks import pull
 
-__all__ = ['imap_connect']
-
 def get_user_info(fabric_settings, user, desired_info):
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
@@ -181,8 +179,6 @@ def get_mail(settings, userfile):
     For each user, get a list of message ids and send them to celery to process
     '''
 
-    import pdb; pdb.set_trace()
-    
     with open(userfile[0]) as f:
         for user in f.readlines():
             imap = imap_connect(settings, user.strip())
@@ -197,7 +193,7 @@ def get_mail(settings, userfile):
                 # Get all the message uids
                 imap.select(folder, True)
                 response_code, ids = imap.uid('search', None, 'ALL')
-                for id in ids[0].split():
+                for messageid in ids[0].split():
                     pull.delay(folder, messageid)
                     
             print len(all_ids)
