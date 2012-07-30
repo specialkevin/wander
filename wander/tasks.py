@@ -1,6 +1,7 @@
 from wander.mail import StoredMessage
+from celery import Celery
 
-celery = Celery(broker='mongodb://localhost:27017/database_name')
+celery = Celery('tasks', broker='mongodb://localhost:27017/database_name')
 
 @celery.task
 def pull(folder, messageid):
