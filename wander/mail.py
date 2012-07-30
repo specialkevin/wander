@@ -1,6 +1,3 @@
-from wander import imap_connect
-from wander import auth_google
-
 from mongoengine import *
 
 
