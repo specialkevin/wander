@@ -8,6 +8,6 @@ class StoredMessage(Document):
     username = StringField()
 
     meta = {
-        'indexes': ['message_id']
+        'indexes':  { 'fields': ['message_id'], 'unique': True },
     }
     
