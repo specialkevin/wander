@@ -4,6 +4,8 @@ import requests
 import argparse
 import imaplib
 
+import gdata
+
 import csv
 
 from sys import stderr
@@ -13,6 +15,8 @@ from fabric.api import run, env
 from fabric.context_managers import settings, hide
 
 from gdata.apps import client
+
+import wander.google
 
 def get_user_info(fabric_settings, user, desired_info):
     command = fabric_settings['zmprov_path'] + ' ga '+ user
@@ -146,6 +150,16 @@ def get_user_contacts(settings, username=None):
 
 def print_user_contacts(settings, username=None):
     print get_user_contacts(settings, username)
+    print "============================"
+    print "CONTACTS FROM GOOGLE"
+    print "============================"
+    try:
+        email = username[0]+'@'+settings['google_domain']
+        google_contacts = wander.google.Contacts(email, settings)
+    except gdata.client.BadAuthentication:
+        stderr.write('Bad Login Credentials for Google Apps.\n')
+        exit(1)
+    print google_contacts.list_contacts()
        
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'
