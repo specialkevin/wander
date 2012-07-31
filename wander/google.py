@@ -14,3 +14,59 @@ class Contacts(object):
                 print entry.name.full_name.text
         return
 
+    def create_contacts(self, contacts):
+        for contact in contacts:
+            new_contact = gdata.contacts.data.ContactEntry()
+
+            if contact['fullName'] == '':
+                if contact['middleName'] == '':
+                    full_name = contact['firstName'] + ' ' + contact['lastName']
+                else:
+                    full_name = contact['firstName'] + ' ' + contact['middleName'] + ' ' + contact['lastName']
+            else:
+                full_name = contact['fullName']
+
+            if contact['firstName'] == '':
+                firstName = ' '
+            else:
+                firstName = contact['firstName']
+
+            if contact['lastName'] == '':
+                lastName = ' '
+            else:
+                lastName = contact['lastName']
+            
+            if contact['fullName'] == '' and contact['firstName'] == '' and contact['lastName'] == '':
+                next
+            else:
+                new_contact.name = gdata.data.Name(
+                    given_name = gdata.data.GivenName(text=firstName),
+                    family_name = gdata.data.FamilyName(text=lastName),
+                    full_name = gdata.data.FullName(text=full_name))
+
+                if contact['email'] != '':
+                    new_contact.email.append(gdata.data.Email(address = contact['email'], 
+                        primary = 'true', display_name = full_name, rel = gdata.data.OTHER_REL))
+                if 'email2' in contact and contact['email2'] != '':
+                    new_contact.email.append(gdata.data.Email(address = contact['email2'], 
+                        display_name = full_name, rel = gdata.data.OTHER_REL))
+
+                if 'homePhone' in contact and contact['homePhone'] != '':
+                    new_contact.phone_number.append(gdata.data.PhoneNumber(text = contact['homePhone'], 
+                        rel = gdata.data.HOME_REL))
+
+                if 'workPhone' in contact and contact['workPhone'] != '':
+                    new_contact.phone_number.append(gdata.data.PhoneNumber(text = contact['workPhone'], 
+                        rel = gdata.data.WORK_REL))
+
+                if 'mobilePhone' in contact and contact['mobilePhone'] != '':
+                    new_contact.phone_number.append(gdata.data.PhoneNumber(text = contact['mobilePhone'],
+                        rel = gdata.data.MOBILE_REL))
+
+                if 'company' in contact and contact['company'] != '':
+                    new_contact.organization = gdata.data.Organization(
+                        org_name = gdata.data.OrgName(text = contact['company']),
+                        rel = gdata.data.WORK_REL)
+    
+                self.gd_client.CreateContact(new_contact)
+        return

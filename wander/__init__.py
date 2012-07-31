@@ -148,6 +148,18 @@ def get_user_contacts(settings, username=None):
         stderr.write('No username given\n')
         exit(1)
 
+def migrate_contacts(settings, username=None):
+    zimbra_contacts = get_user_contacts(settings, username)
+    try: 
+        google_contacts = wander.google.Contacts(username, settings)
+    except gdata.client.BadAuthentication:
+        stderr.write('Bad Login Credentials for Google Apps.\n')
+        exit(1)
+
+    google_contacts.create_contacts(zimbra_contacts)
+
+    return
+
 def print_user_contacts(settings, username=None):
     zimbra_contacts = get_user_contacts(settings, username)
     for contact in zimbra_contacts:
