@@ -17,5 +17,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
     ],
-    install_requires = ['requests', 'fabric', 'celery', 'mongoengine', 'celery-with-mongodb'],
+    install_requires = ['requests', 'fabric', 'celery', 'mongoengine', 'celery-with-mongodb', 'gdata'],
 )
