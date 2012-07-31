@@ -8,7 +8,7 @@ class Contacts(object):
 
     def list_contacts(self):
         feed = self.gd_client.GetContacts()
-        for i, entry in enumerate(feed.entry):
+        for entry in feed.entry:
             if entry.name:
                 print entry.name.full_name.text
         return
