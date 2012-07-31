@@ -77,6 +77,12 @@ def save_usernames(fabric_settings):
 def save_account_list(fabric_settings, username=None):
     return save('accounts',get_account_list(fabric_settings))
 
+def create_accounts(settings, username=None):
+    google_apps = wander.google.Accounts(settings)
+    if username:
+        print google_apps.get_account(username)
+    return
+
 def make_fabric_call(fabric_settings, command):
     with settings(
         hide('stdout','running'),

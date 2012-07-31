@@ -1,8 +1,21 @@
 import atom.data
 import gdata.contacts.data
 import gdata.contacts.client
+import gdata.apps.client
 
 from sys import stdout
+
+class Accounts(object):
+    def __init__(self, settings):
+        self.ga_client = gdata.apps.client.AppsClient(domain=settings['google_domain'])
+        self.ga_client.ssl = True
+        self.ga_client.ClientLogin(email=settings['google_admin'], password=settings['google_password'], source='apps')
+
+    def get_account(self, user):
+        return self.ga_client.RetrieveUser(user[0])
+
+    def create_account(self, user):
+        return
 
 class Contacts(object):
     def __init__(self, user, settings):
