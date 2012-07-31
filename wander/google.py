@@ -19,8 +19,10 @@ class Contacts(object):
         for contact in contacts:
             new_contact = gdata.contacts.data.ContactEntry()
 
-            full_name = contact['fullName'] if contact['fullName'] else:
-                if contact['middleName'] == '':
+            if contact['fullName']
+                full_name = contact['fullName']
+            else:
+                if contact['middleName']:
                     full_name = contact['firstName'] + ' ' + contact['lastName']
                 else:
                     full_name = ' '.join([contact['firstName'], contact['middleName'], contact['lastName']])
