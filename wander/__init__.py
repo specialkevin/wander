@@ -149,13 +149,29 @@ def get_user_contacts(settings, username=None):
         exit(1)
 
 def print_user_contacts(settings, username=None):
-    print get_user_contacts(settings, username)
+    zimbra_contacts = get_user_contacts(settings, username)
+    for contact in zimbra_contacts:
+        print contact.keys()
+        if contact['fullName'] == '':
+            if contact['middleName'] == '':
+                full_name = contact['firstName'] + ' ' + contact['lastName']
+            else:
+                full_name = contact['firstName'] + ' ' + contact['middleName'] + ' ' + contact['lastName']
+        else:
+            full_name = contact['fullName']
+        print 'Full Name: %s' % full_name
+        #print 'First Name: %s' % contact['firstName']
+        #print 'Last Name: %s' % contact['lastName']
+        print 'email: %s' % contact['email']
+        print 'Home Phone: %s' % contact['homePhone']
+        print 'Work Phone: %s' % contact['workPhone']
+        print
     print "============================"
     print "CONTACTS FROM GOOGLE"
     print "============================"
     try:
-        email = username[0]+'@'+settings['google_domain']
-        google_contacts = wander.google.Contacts(email, settings)
+        #email = username[0]+'@'+settings['google_domain']
+        google_contacts = wander.google.Contacts(username, settings)
     except gdata.client.BadAuthentication:
         stderr.write('Bad Login Credentials for Google Apps.\n')
         exit(1)
