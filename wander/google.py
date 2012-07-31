@@ -27,8 +27,8 @@ class Contacts(object):
                 else:
                     full_name = ' '.join([contact['firstName'], contact['middleName'], contact['lastName']])
 
-            firstName = contact['firstName'] if contact['firstName'] else firstName = ' '
-            lastName = contact['lastName'] if contact['lastName'] else lastName = ' '
+            firstName = contact['firstName'] if contact['firstName'] else ' '
+            lastName = contact['lastName'] if contact['lastName'] else ' '
             
             if contact['fullName'] and contact['firstName'] and contact['lastName']:
                 next
