@@ -20,7 +20,8 @@ from gdata.apps import client
 import wander.google
 
 def get_user_info(fabric_settings, user, desired_info):
-    command = fabric_settings['zmprov_path'] + ' ga '+ user
+    stdout.write('Getting User Info from Zimbra for %s.\n' % user[0])
+    command = fabric_settings['zmprov_path'] + ' ga '+ user[0]
     for i in desired_info:
         command = command + ' ' + i
 
@@ -28,7 +29,7 @@ def get_user_info(fabric_settings, user, desired_info):
     output = output.splitlines()
     output.pop(0)
     info = {}
-    info.update({'username' : user})
+    info.update({'username' : user[0]})
     for value in output:
         value = [x.strip() for x in value.split(':')]
         info.update({value[0] : value[1]})
@@ -78,9 +79,11 @@ def save_account_list(fabric_settings, username=None):
     return save('accounts',get_account_list(fabric_settings))
 
 def create_accounts(settings, username=None):
+    user_info = get_user_info(settings, username, ['givenName','sn','displayName'])
     google_apps = wander.google.Accounts(settings)
     if username:
-        print google_apps.get_account(username)
+        stdout.write('Creating user account in Google for %s\n' % username)
+        google_apps.create_account(username[0], user_info, settings['temp_password'])
     return
 
 def make_fabric_call(fabric_settings, command):

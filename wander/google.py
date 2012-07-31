@@ -14,7 +14,11 @@ class Accounts(object):
     def get_account(self, user):
         return self.ga_client.RetrieveUser(user[0])
 
-    def create_account(self, user):
+    def create_account(self, user, user_info, password):
+        first_name = user_info['givenName']
+        last_name = user_info['sn']
+        display_name = user_info['displayName']
+        self.ga_client.CreateUser(user_name=user, family_name = last_name, given_name = first_name, password = password)       
         return
 
 class Contacts(object):
