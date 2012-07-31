@@ -10,6 +10,7 @@ import csv
 
 from sys import stderr
 from sys import exit
+from sys import stdout
 
 from fabric.api import run, env
 from fabric.context_managers import settings, hide
@@ -149,8 +150,10 @@ def get_user_contacts(settings, username=None):
         exit(1)
 
 def migrate_contacts(settings, username=None):
+    stdout.write('Getting Contacts from Zimbra for %s\n' % username)
     zimbra_contacts = get_user_contacts(settings, username)
     try: 
+        stdout.write('Opening Connection to Google\n')
         google_contacts = wander.google.Contacts(username, settings)
     except gdata.client.BadAuthentication:
         stderr.write('Bad Login Credentials for Google Apps.\n')

@@ -2,6 +2,8 @@ import atom.data
 import gdata.contacts.data
 import gdata.contacts.client
 
+from sys import stdout
+
 class Contacts(object):
     def __init__(self, user, settings):
         email = user[0]+'@'+settings['google_domain']
@@ -16,6 +18,7 @@ class Contacts(object):
         return
 
     def create_contacts(self, contacts):
+        stdout.write('Migrating Contacts to Google....\n')
         for contact in contacts:
             new_contact = gdata.contacts.data.ContactEntry()
 
