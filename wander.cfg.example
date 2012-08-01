@@ -18,6 +18,7 @@ admin = administration
 password = VerySecurePassword
 
 [google]
+google_admin = admin.user@example.com
 google_domain = example.com
-email = jdoe@example.com
 google_password = SuperDuperStrongPassword
+temp_password = AVeryStrongTempPasswordForEveryUserInitially
