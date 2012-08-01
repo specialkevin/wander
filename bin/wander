@@ -16,7 +16,7 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings, google_setti
     parser_calendar.set_defaults(func=get_user_calendar, settings=zimbra_settings)
 
     parser_accounts = subparsers.add_parser('accounts')
-    parser_accounts.add_argument('user', nargs=1, default=None)
+    parser_accounts.add_argument('user', nargs='?', default=None)
     parser_accounts.set_defaults(func=create_accounts, settings=dict(fabric_settings.items() + google_settings.items()), user=None)
 
     parser_mail = subparsers.add_parser('mail')

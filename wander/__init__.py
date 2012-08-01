@@ -20,8 +20,8 @@ from gdata.apps import client
 import wander.google
 
 def get_user_info(fabric_settings, user, desired_info):
-    stdout.write('Getting User Info from Zimbra for %s.\n' % user[0])
-    command = fabric_settings['zmprov_path'] + ' ga '+ user[0]
+    stdout.write('Getting User Info from Zimbra for %s.\n' % user)
+    command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
         command = command + ' ' + i
 
@@ -29,7 +29,7 @@ def get_user_info(fabric_settings, user, desired_info):
     output = output.splitlines()
     output.pop(0)
     info = {}
-    info.update({'username' : user[0]})
+    info.update({'username' : user})
     for value in output:
         value = [x.strip() for x in value.split(':')]
         info.update({value[0] : value[1]})
@@ -37,15 +37,15 @@ def get_user_info(fabric_settings, user, desired_info):
     return info
 
 def get_account_list(fabric_settings, username=None):
-    command = fabric_settings['zmprov_path'] + ' -l    gaa'
+    command = fabric_settings['zmprov_path'] + ' -l gaa'
     output = make_fabric_call(fabric_settings, command)
     return output
 
 def get_user_list_info(fabric_settings, user_list, desired_info):
     if user_list:
         output = []
-        for i in user_list:
-            output.append(get_user_info(fabric_settings, i, desired_info))
+        for user in user_list:
+            output.append(get_user_info(fabric_settings, user, desired_info))
         return output
     else:
         stderr.write('OH NOES, No userlist\n')
@@ -79,11 +79,15 @@ def save_account_list(fabric_settings, username=None):
     return save('accounts',get_account_list(fabric_settings))
 
 def create_accounts(settings, username=None):
-    user_info = get_user_info(settings, username, ['givenName','sn','displayName'])
     google_apps = wander.google.Accounts(settings)
     if username:
         stdout.write('Creating user account in Google for %s\n' % username)
-        google_apps.create_account(username[0], user_info, settings['temp_password'])
+        user_info = get_user_info(settings, username, ['givenName', 'sn', 'displayName'])
+        google_apps.create_account(username, user_info, settings['temp_password'])
+    else:
+        user_info = get_user_list_info(settings, get_usernames(settings), ['givenName', 'sn', 'displayName'])
+        for account in user_info:
+            google_apps.create_account(account['username'], account, settings['temp_password'])
     return
 
 def make_fabric_call(fabric_settings, command):
@@ -92,6 +96,7 @@ def make_fabric_call(fabric_settings, command):
         host_string = fabric_settings['server'], user = fabric_settings['zimbra_user'],
         key_filename = os.path.expanduser(fabric_settings['keypath'])
     ):
+        stdout.write('Running \' %s \' via Fabric.\n' % command)
         output = run(command)
     return output
 
