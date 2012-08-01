@@ -25,7 +25,7 @@ def pull(settings, user, folder, messageid):
     content = data[0][1]
 
     # munge me some unicode
-    content = content.decode('utf-8', errors='ignore').encode()
+    content = content.decode('utf-8', errors='ignore')
 
     message = StoredMessage(message_id = messageid, item_properties = [], labels=folder.split('/'), username = user, message_rfc = content)
     try:
