@@ -80,14 +80,17 @@ def save_account_list(fabric_settings, username=None):
 
 def create_accounts(settings, username=None):
     google_apps = wander.google.Accounts(settings)
+    errant_users = []
     if username:
         stdout.write('Creating user account in Google for %s\n' % username)
         user_info = get_user_info(settings, username, ['givenName', 'sn', 'displayName'])
-        google_apps.create_account(username, user_info, settings['temp_password'])
+        errant_users.append(google_apps.create_account(username, user_info, settings['temp_password']))
     else:
         user_info = get_user_list_info(settings, get_usernames(settings), ['givenName', 'sn', 'displayName'])
         for account in user_info:
-            google_apps.create_account(account['username'], account, settings['temp_password'])
+            errant_users.append(google_apps.create_account(account['username'], account, settings['temp_password']))
+    for user in errant_users:
+        stdout.write('This account errored out and wasn\'t able to be created: %s\n' % user)
     return
 
 def make_fabric_call(fabric_settings, command):
