@@ -17,5 +17,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
     ],
-    install_requires = ['requests', 'fabric', 'gdata'],
+    install_requires = ['requests', 'fabric', 'gdata', 'argparse'],
 )
