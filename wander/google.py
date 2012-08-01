@@ -4,6 +4,7 @@ import gdata.contacts.client
 import gdata.apps.client
 
 from sys import stdout
+from sys import stderr
 
 class Accounts(object):
     def __init__(self, settings):
@@ -18,7 +19,12 @@ class Accounts(object):
         first_name = user_info['givenName']
         last_name = user_info['sn']
         display_name = user_info['displayName']
-        self.ga_client.CreateUser(user_name=user, family_name = last_name, given_name = first_name, password = password)       
+        try:
+            self.ga_client.CreateUser(user_name=user, family_name = last_name, 
+                given_name = first_name, password = password, suspended = False, admin = None, 
+                quota_limit = None, password_hash_function = None, change_password = None)
+        except gdata.client.RequestError:
+            stderr.write('There was an error with Google Apps.\n')
         return
 
 class Contacts(object):
