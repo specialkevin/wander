@@ -14,8 +14,6 @@ from fabric.context_managers import settings, hide
 
 from gdata.apps import client
 
-from wander.tasks import pull
-
 def get_user_info(fabric_settings, user, desired_info):
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
@@ -178,12 +176,14 @@ def get_mail(settings, userfile):
     '''
     For each user, get a list of message ids and send them to celery to process
     '''
+    from wander.tasks import pull
 
     with open(userfile[0]) as f:
+        count = 0
         for user in f.readlines():
-            imap = imap_connect(settings, user.strip())
+            user = user.strip()
+            imap = imap_connect(settings, user)
             response_code, raw_folder_list = imap.list()
-            all_ids = []
             for folder in raw_folder_list:
                 # parse
                 folder = folder.split('"')[1::2][1]
@@ -194,9 +194,10 @@ def get_mail(settings, userfile):
                 imap.select(folder, True)
                 response_code, ids = imap.uid('search', None, 'ALL')
                 for messageid in ids[0].split():
-                    pull.delay(folder, messageid)
+                    print "Starting import on message number {}\r".format(count),
+                    pull.delay(settings, user, folder, messageid)
+                    count += 1
                     
-            print len(all_ids)
 
             
 def auth_google(settings):
