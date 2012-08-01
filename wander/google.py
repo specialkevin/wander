@@ -25,6 +25,7 @@ class Accounts(object):
                 quota_limit = None, password_hash_function = None, change_password = None)
         except gdata.client.RequestError:
             stderr.write('There was an error with Google Apps.\n')
+            exit(1)
         return
 
 class Contacts(object):
