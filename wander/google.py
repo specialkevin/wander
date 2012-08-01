@@ -2,8 +2,6 @@ import atom.data
 import gdata.contacts.data
 import gdata.contacts.client
 
-from sys import stdout
-
 class Contacts(object):
     def __init__(self, user, settings):
         email = user[0]+'@'+settings['google_domain']
@@ -18,7 +16,7 @@ class Contacts(object):
         return
 
     def create_contacts(self, contacts):
-        stdout.write('Migrating Contacts to Google....\n')
+        print('Migrating Contacts to Google....')
         for contact in contacts:
             new_contact = gdata.contacts.data.ContactEntry()
 
@@ -33,8 +31,8 @@ class Contacts(object):
             firstName = contact['firstName'] if contact['firstName'] else ' '
             lastName = contact['lastName'] if contact['lastName'] else ' '
             
-            if contact['fullName'] and contact['firstName'] and contact['lastName']:
-                next
+            if not any([contact['fullName'], contact['firstName'] ,contact['lastName']]):
+                continue
             else:
                 new_contact.name = gdata.data.Name(
                     given_name = gdata.data.GivenName(text=firstName),
@@ -79,4 +77,5 @@ class Contacts(object):
                 new_contact.content = atom.data.Content(text = '\n'.join(contact.values()))
     
                 self.gd_client.CreateContact(new_contact)
+                print('Created contact {}'.format(full_name))
         return
