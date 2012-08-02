@@ -54,6 +54,8 @@ def push(settings, google_settings, messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
+    mongoengine.connect('stored_messages')
+
     try:
         message = StoredMessage.objects.get(message_id = messageid)
     except DoesNotExist:
