@@ -272,7 +272,7 @@ def get_mail(settings, google_settings, userfile):
                                 count += 1
                     except imap.error, e:
                         print "Got imap error: {}".format(e)
-                        continue
+                        exit()
                     break
                 
             
