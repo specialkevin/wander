@@ -13,39 +13,42 @@ from wander.google import MailMigration
 celery = Celery('tasks')
 celery.config_from_object(celeryconfig)
 
-@celery.task
+@celery.task(default_retry_delay = 61)
 def pull(settings, google_settings, user, folder, messageid):
     '''
     Pulls a message from zimbra and stores it in Mongo
     '''
     mongoengine.connect('stored_messages')
     try:
-        imap = imap_connect(settings, user)
-    except imaplib.IMAP4.error, e:
-        print "Unexpected error:", e
-        return
-    imap.select(folder, True)
-    result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
-    content = data[0][1]
-    flags = list(imaplib.ParseFlags(data[1]))
-    item_properties = []
-    if '\\Seen' not in flags:
-        item_properties.append('IS_UNREAD')
-    if folder.lower().startswith('sent '):
-        item_properties.append('IS_SENT')
-    
-    # munge me some unicode
-    content = content.decode('utf-8', errors='ignore')
+        try:
+            imap = imap_connect(settings, user)
+        except imaplib.IMAP4.error, e:
+            print "Unexpected error: {}".format(e)
+            return
+        imap.select(folder, True)
+        result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
+        content = data[0][1]
+        flags = list(imaplib.ParseFlags(data[1]))
+        item_properties = []
+        if '\\Seen' not in flags:
+            item_properties.append('IS_UNREAD')
+        if folder.lower().startswith('sent '):
+            item_properties.append('IS_SENT')
 
-    message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
-    try:
-        message.save()
-    except (mongoengine.base.ValidationError, mongoengine.base.OperationError) as e:
-        print "Unexpected error:", e
-        return
-        
-    push.delay(settings, google_settings, messageid, content)
+        # munge me some unicode
+        content = content.decode('utf-8', errors='ignore')
 
+        message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
+        try:
+            message.save()
+        except (mongoengine.base.ValidationError, mongoengine.base.OperationError) as e:
+            print "Unexpected error:", e
+            return
+
+        push.delay(settings, google_settings, messageid, content)
+    except imaplib.IMAP4.abort, e:
+        print "Abort error: {}".format(e)
+        pull.retry()
 
 @celery.task(default_retry_delay = 61)
 def push(settings, google_settings, messageid, content):
