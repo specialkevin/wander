@@ -3,6 +3,7 @@ import os.path
 import requests
 import argparse
 import imaplib
+import time
 
 import mongoengine
 import gdata
@@ -272,7 +273,8 @@ def get_mail(settings, google_settings, userfile):
                                 count += 1
                     except imap.error, e:
                         print "Got imap error: {}".format(e)
-                        exit()
+                        time.sleep(1)
+                        continue
                     break
                 
             
