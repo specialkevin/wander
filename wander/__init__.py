@@ -4,6 +4,7 @@ import requests
 import argparse
 import imaplib
 
+import mongoengine
 import gdata
 
 import csv
@@ -241,6 +242,9 @@ def get_mail(settings, google_settings, userfile):
     from wander.tasks import pull
     from wander.mail import StoredMessage
 
+    mongoengine.connect('stored_messages')
+
+    
     with open(userfile[0]) as f:
         count = 0
         for user in f.readlines():
