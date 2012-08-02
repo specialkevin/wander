@@ -16,8 +16,8 @@ class Accounts(object):
         return self.ga_client.RetrieveUser(user[0])
 
     def create_account(self, user, user_info, password):
-        first_name = user_info['givenName'] if 'givenName' in user_info  else ' '
-        last_name = user_info['sn'] if 'sn' in user_info else ' '
+        first_name = user_info['givenName'] if 'givenName' in user_info  else 'NotAvailable'
+        last_name = user_info['sn'] if 'sn' in user_info else 'NotAvailable'
         display_name = user_info['displayName'] if 'displayName' in user_info else user
         users_errors = []
         try:
