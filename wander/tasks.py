@@ -43,7 +43,7 @@ def pull(settings, google_settings, user, folder, messageid):
             return
 
         push.delay(settings, google_settings, messageid, content)
-    except (imap.error, imaplib.error, imaplib.abort) as e:
+    except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
         print "Imap error: {}".format(e)
         pull.retry()
 
