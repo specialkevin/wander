@@ -27,19 +27,20 @@ def pull(settings, user, folder, messageid):
     # munge me some unicode
     content = content.decode('utf-8', errors='ignore')
 
-    message = StoredMessage(message_id = messageid, item_properties = [], labels=folder.split('/'), username = user, message_rfc = content)
+    message = StoredMessage(message_id = messageid, item_properties = [], labels=folder.split('/'), username = user)
     try:
         message.save()
     except mongoengine.base.ValidationError, e:
         print "Unexpected error:", e
 
-        
+    push.delay(messageid, content)
 
 
 @celery.task
-def push(messageid):
+def push(messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
     pass
+
     
