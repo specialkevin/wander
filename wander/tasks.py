@@ -43,8 +43,8 @@ def pull(settings, google_settings, user, folder, messageid):
             return
 
         push.delay(settings, google_settings, messageid, content)
-    except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
-        print "Imap error: {}".format(e)
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
         pull.retry()
 
 @celery.task(default_retry_delay = 61)
