@@ -246,7 +246,7 @@ def get_mail(settings, google_settings, userfile):
         for user in f.readlines():
             user = user.strip()
             messages = StoredMessage.objects.filter(username = user)
-            completed_messages = [message.message_id if message.migrated == True for message in messages]
+            completed_messages = [message.message_id for message in messages if message.migrated]
             imap = imap_connect(settings, user)
             response_code, raw_folder_list = imap.list()
             for folder in raw_folder_list:
