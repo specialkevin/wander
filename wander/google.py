@@ -2,9 +2,30 @@ import atom.data
 import gdata.contacts.data
 import gdata.contacts.client
 import gdata.apps.client
+import gdata.migration.service
 
 from sys import stdout
 from sys import stderr
+
+class MailMigration(object):
+    def __init__(self, settings):
+        self.ga_client = gdata.migration.service.MigrationService(
+            email = settings['google_admin'],
+            password = settings['google_password'],
+            domain = settings['google_domain'],
+            source = 'wander')
+
+        self.ga_client.ProgrammaticLogin()
+
+
+    def migrate(username, message, properties, labels):
+        self.ga_client.ImportMail(user_name=username,
+                                  mail_message=message,
+                                  mail_item_properties=properties,
+                                  mail_labels=labels)
+        
+    
+
 
 class Accounts(object):
     def __init__(self, settings):

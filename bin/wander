@@ -21,7 +21,7 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings, google_setti
 
     parser_mail = subparsers.add_parser('mail')
     parser_mail.add_argument('userfile', nargs=1, default=None)
-    parser_mail.set_defaults(func=get_mail, settings=imap_settings, userfile=None, command = 'mail')
+    parser_mail.set_defaults(func=get_mail, settings=imap_settings, userfile=None, command = 'mail', google_settings=google_settings)
 
     parser_info = subparsers.add_parser('info')
     parser_info.add_argument('-f', nargs='*', default=None, dest='path')
@@ -32,7 +32,7 @@ def parse_commands(zimbra_settings, fabric_settings, imap_settings, google_setti
 
     if getattr(args, 'command', False):
         if args.command == 'mail':
-            get_mail(args.settings, args.userfile)
+            get_mail(args.settings, args.google_settings, args.userfile)
 
         return
     

@@ -3,15 +3,18 @@ import imaplib
 import mongoengine
 from celery import Celery
 from mongoengine.queryset import DoesNotExist
+from gdata.apps.service import AppsForYourDomainException
 
 from wander import celeryconfig
 from wander import imap_connect
 from wander.mail import StoredMessage
+from wander.google import MailMigration
 
 celery = Celery('tasks')
 celery.config_from_object(celeryconfig)
+
 @celery.task
-def pull(settings, user, folder, messageid):
+def pull(settings, google_settings, user, folder, messageid):
     '''
     Pulls a message from zimbra and stores it in Mongo
     '''
@@ -28,22 +31,23 @@ def pull(settings, user, folder, messageid):
     item_properties = []
     if '\\Seen' not in flags:
         item_properties.append('IS_UNREAD')
-    return
+    if folder.lower().startswith('sent '):
+        item_properties.append('IS_SENT')
     
     # munge me some unicode
     content = content.decode('utf-8', errors='ignore')
 
-    message = StoredMessage(message_id = messageid, item_properties = [], labels=folder.split('/'), username = user)
+    message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
     try:
         message.save()
     except mongoengine.base.ValidationError, e:
         print "Unexpected error:", e
 
-    push.delay(messageid, content)
+    push.delay(settings, google_settings, messageid, content)
 
 
-@celery.task
-def push(messageid, content):
+@celery.task(default_retry_delay = 61)
+def push(settings, google_settings, messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
@@ -52,6 +56,14 @@ def push(messageid, content):
     except DoesNotExist:
         print "Message does not exist in mongo id: {}".format(messageid)
 
+    try:
+        migration = MailMigration(google_settings)
+        migration.migrate(message.username, content, message.item_properties, message.lables)
+    except AppsForYourDomainException, e:
+        if e['status'] == 503:
+            push.retry()
+        else:
+            raise
     
 
     

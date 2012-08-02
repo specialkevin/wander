@@ -9,6 +9,7 @@ class StoredMessage(Document):
     migrated = BooleanField(default=False)
     
     meta = {
-        'indexes': [{ 'fields': ['message_id'], 'unique': True }],
+        'indexes': [{ 'fields': ['message_id'], 'unique': True },
+                    'username'],
     }
     

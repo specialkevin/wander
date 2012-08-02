@@ -234,19 +234,21 @@ def imap_connect(settings, user):
     login_plain(imapconn, user, settings['password'], settings['admin'])
     return imapconn
 
-def get_mail(settings, userfile):
+def get_mail(settings, google_settings, userfile):
     '''
     For each user, get a list of message ids and send them to celery to process
     '''
     from wander.tasks import pull
+    from wander.mail import StoredMessage
 
     with open(userfile[0]) as f:
         count = 0
         for user in f.readlines():
             user = user.strip()
+            messages = StoredMessage.objects.filter(username = user)
+            completed_messages = [message.message_id if message.migrated for message in messages]
             imap = imap_connect(settings, user)
             response_code, raw_folder_list = imap.list()
-            flags = set()
             for folder in raw_folder_list:
                 # parse
                 folder = folder.split('"')[1::2][1]
@@ -258,14 +260,10 @@ def get_mail(settings, userfile):
                 response_code, ids = imap.uid('search', None, 'ALL')
                 for messageid in ids[0].split():
                     print "Starting import on message number {}\r".format(count),
-                    result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
-                    if len(imaplib.ParseFlags(data[1])) > 0:
-                        flags = flags | set(imaplib.ParseFlags(data[1]))
-                    else:
-                        continue
-                    count += 1
-            print flags
-                    #pull.delay(settings, user, folder, messageid)
+                    if messageid not in complete_messages:
+                        pull.delay(settings, google_settings, user, folder, messageid)
+                        count += 1
+
             
                     
 
