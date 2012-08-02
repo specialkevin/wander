@@ -22,11 +22,12 @@ def pull(settings, google_settings, user, folder, messageid):
     try:
         try:
             imap = imap_connect(settings, user)
-        except imaplib.IMAP4.error, e:
+        except imap.error, e:
             print "Unexpected error: {}".format(e)
             return
         imap.select(folder, True)
         result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
+        imap.logout()
         content = data[0][1]
         flags = list(imaplib.ParseFlags(data[1]))
         item_properties = []
@@ -46,7 +47,7 @@ def pull(settings, google_settings, user, folder, messageid):
             return
 
         push.delay(settings, google_settings, messageid, content)
-    except imaplib.IMAP4.abort, e:
+    except imap.abort, e:
         print "Abort error: {}".format(e)
         pull.retry()
 
