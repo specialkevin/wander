@@ -45,7 +45,7 @@ def pull(settings, google_settings, user, folder, messageid):
         push.delay(settings, google_settings, messageid, content)
     except:
         print "Unexpected error:", sys.exc_info()[0]
-        pull.retry()
+        #pull.retry()
 
 @celery.task(default_retry_delay = 61)
 def push(settings, google_settings, messageid, content):
