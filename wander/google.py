@@ -2,14 +2,14 @@ import atom.data
 import gdata.contacts.data
 import gdata.contacts.client
 import gdata.apps.client
-import gdata.migration.service
+import gdata.apps.migration.service
 
 from sys import stdout
 from sys import stderr
 
 class MailMigration(object):
     def __init__(self, settings):
-        self.ga_client = gdata.migration.service.MigrationService(
+        self.ga_client = gdata.apps.migration.service.MigrationService(
             email = settings['google_admin'],
             password = settings['google_password'],
             domain = settings['google_domain'],
