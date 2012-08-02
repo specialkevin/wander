@@ -4,17 +4,23 @@ import requests
 import argparse
 import imaplib
 
+import gdata
+
 import csv
 
 from sys import stderr
 from sys import exit
+from sys import stdout
 
 from fabric.api import run, env
 from fabric.context_managers import settings, hide
 
 from gdata.apps import client
 
+import wander.google
+
 def get_user_info(fabric_settings, user, desired_info):
+    stdout.write('Getting User Info from Zimbra for %s.\n' % user)
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
         command = command + ' ' + i
@@ -31,15 +37,15 @@ def get_user_info(fabric_settings, user, desired_info):
     return info
 
 def get_account_list(fabric_settings, username=None):
-    command = fabric_settings['zmprov_path'] + ' -l    gaa'
+    command = fabric_settings['zmprov_path'] + ' -l gaa'
     output = make_fabric_call(fabric_settings, command)
     return output
 
 def get_user_list_info(fabric_settings, user_list, desired_info):
     if user_list:
         output = []
-        for i in user_list:
-            output.append(get_user_info(fabric_settings, i, desired_info))
+        for user in user_list:
+            output.append(get_user_info(fabric_settings, user, desired_info))
         return output
     else:
         stderr.write('OH NOES, No userlist\n')
@@ -72,12 +78,28 @@ def save_usernames(fabric_settings):
 def save_account_list(fabric_settings, username=None):
     return save('accounts',get_account_list(fabric_settings))
 
+def create_accounts(settings, username=None):
+    google_apps = wander.google.Accounts(settings)
+    errant_users = []
+    if username:
+        stdout.write('Creating user account in Google for %s\n' % username)
+        user_info = get_user_info(settings, username, ['givenName', 'sn', 'displayName'])
+        errant_users.append(google_apps.create_account(username, user_info, settings['temp_password']))
+    else:
+        user_info = get_user_list_info(settings, get_usernames(settings), ['givenName', 'sn', 'displayName'])
+        for account in user_info:
+            errant_users.append(google_apps.create_account(account['username'], account, settings['temp_password']))
+    for user in errant_users:
+        stdout.write('This account errored out and wasn\'t able to be created: %s\n' % user)
+    return
+
 def make_fabric_call(fabric_settings, command):
     with settings(
         hide('stdout','running'),
         host_string = fabric_settings['server'], user = fabric_settings['zimbra_user'],
         key_filename = os.path.expanduser(fabric_settings['keypath'])
     ):
+        stdout.write('Running \' %s \' via Fabric.\n' % command)
         output = run(command)
     return output
 
@@ -144,8 +166,48 @@ def get_user_contacts(settings, username=None):
         stderr.write('No username given\n')
         exit(1)
 
+def migrate_contacts(settings, username=None):
+    stdout.write('Getting Contacts from Zimbra for %s\n' % username)
+    zimbra_contacts = get_user_contacts(settings, username)
+    try: 
+        stdout.write('Opening Connection to Google\n')
+        google_contacts = wander.google.Contacts(username, settings)
+    except gdata.client.BadAuthentication:
+        stderr.write('Bad Login Credentials for Google Apps.\n')
+        exit(1)
+
+    google_contacts.create_contacts(zimbra_contacts)
+
+    return
+
 def print_user_contacts(settings, username=None):
-    print get_user_contacts(settings, username)
+    zimbra_contacts = get_user_contacts(settings, username)
+    for contact in zimbra_contacts:
+        print contact.keys()
+        if contact['fullName'] == '':
+            if contact['middleName'] == '':
+                full_name = contact['firstName'] + ' ' + contact['lastName']
+            else:
+                full_name = contact['firstName'] + ' ' + contact['middleName'] + ' ' + contact['lastName']
+        else:
+            full_name = contact['fullName']
+        print 'Full Name: %s' % full_name
+        #print 'First Name: %s' % contact['firstName']
+        #print 'Last Name: %s' % contact['lastName']
+        print 'email: %s' % contact['email']
+        print 'Home Phone: %s' % contact['homePhone']
+        print 'Work Phone: %s' % contact['workPhone']
+        print
+    print "============================"
+    print "CONTACTS FROM GOOGLE"
+    print "============================"
+    try:
+        #email = username[0]+'@'+settings['google_domain']
+        google_contacts = wander.google.Contacts(username, settings)
+    except gdata.client.BadAuthentication:
+        stderr.write('Bad Login Credentials for Google Apps.\n')
+        exit(1)
+    print google_contacts.list_contacts()
        
 def get_user_calendar(settings, username=None):
     data_type = 'calendar'
