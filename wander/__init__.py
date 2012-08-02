@@ -89,8 +89,9 @@ def create_accounts(settings, username=None):
         user_info = get_user_list_info(settings, get_usernames(settings), ['givenName', 'sn', 'displayName'])
         for account in user_info:
             errant_users.append(google_apps.create_account(account['username'], account, settings['temp_password']))
-    for user in errant_users:
-        print 'This account errored out and wasn\'t able to be created: %s\n' % user
+    if not errant_users:
+        for user in errant_users:
+            print 'This account errored out and wasn\'t able to be created: %s\n' % user
     return
 
 def make_fabric_call(fabric_settings, command):

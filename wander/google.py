@@ -16,14 +16,15 @@ class Accounts(object):
         return self.ga_client.RetrieveUser(user[0])
 
     def create_account(self, user, user_info, password):
-        first_name = user_info['givenName'] if user_info['givenName'] else ' '
-        last_name = user_info['sn'] if user_info['sn'] else ' '
-        display_name = user_info['displayName'] if user_info['displayName'] else user
+        first_name = user_info['givenName'] if 'givenName' in user_info  else ' '
+        last_name = user_info['sn'] if 'sn' in user_info else ' '
+        display_name = user_info['displayName'] if 'displayName' in user_info else user
         users_errors = []
         try:
             self.ga_client.CreateUser(user_name=user, family_name = last_name, 
                 given_name = first_name, password = password, suspended = False, admin = None, 
                 quota_limit = None, password_hash_function = None, change_password = None)
+            print 'Created %s account in Google Apps' % user
         except gdata.client.RequestError:
             stderr.write('There was an error with Google Apps for %s.\n' % user)
             return user
