@@ -1,11 +1,12 @@
-from wander.mail import StoredMessage
-from celery import Celery
+import sys
 import imaplib
 import mongoengine
+from celery import Celery
+from mongoengine.queryset import DoesNotExist
 
 from wander import celeryconfig
 from wander import imap_connect
-import sys
+from wander.mail import StoredMessage
 
 celery = Celery('tasks')
 celery.config_from_object(celeryconfig)
@@ -21,9 +22,14 @@ def pull(settings, user, folder, messageid):
         print "Unexpected error:", e
         return
     imap.select(folder, True)
-    result, data = imap.uid('fetch', messageid, '(RFC822)')
+    result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
     content = data[0][1]
-
+    flags = list(imaplib.ParseFlags(data[1]))
+    item_properties = []
+    if '\\Seen' not in flags:
+        item_properties.append('IS_UNREAD')
+    return
+    
     # munge me some unicode
     content = content.decode('utf-8', errors='ignore')
 
@@ -41,6 +47,11 @@ def push(messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
-    pass
+    try:
+        message = StoredMessage.objects.get(message_id = messageid)
+    except DoesNotExist:
+        print "Message does not exist in mongo id: {}".format(messageid)
+
+    
 
     

@@ -7,7 +7,6 @@ class StoredMessage(Document):
     labels = ListField(StringField())
     username = StringField()
     migrated = BooleanField(default=False)
-    message_rfc = StringField()
     
     meta = {
         'indexes': [{ 'fields': ['message_id'], 'unique': True }],
