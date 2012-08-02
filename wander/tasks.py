@@ -42,7 +42,7 @@ def pull(settings, google_settings, user, folder, messageid):
             print "Unexpected error:", e
             return
 
-        #push.delay(settings, google_settings, messageid, content)
+        push.delay(settings, google_settings, messageid, content)
     except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
         print "Imap error: {}".format(e)
         # Celery can't pickle the imap errors
@@ -54,21 +54,22 @@ def push(settings, google_settings, messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
-    mongoengine.connect('stored_messages')
+    print "Got push"
+    # mongoengine.connect('stored_messages')
 
-    try:
-        message = StoredMessage.objects.get(message_id = messageid)
-    except DoesNotExist:
-        print "Message does not exist in mongo id: {}".format(messageid)
+    # try:
+    #     message = StoredMessage.objects.get(message_id = messageid)
+    # except DoesNotExist:
+    #     print "Message does not exist in mongo id: {}".format(messageid)
 
-    try:
-        migration = MailMigration(google_settings)
-        migration.migrate(message.username, content, message.item_properties, message.lables)
-    except AppsForYourDomainException, e:
-        if e['status'] == 503:
-            push.retry()
-        else:
-            raise
+    # try:
+    #     migration = MailMigration(google_settings)
+    #     migration.migrate(message.username, content, message.item_properties, message.lables)
+    # except AppsForYourDomainException, e:
+    #     if e['status'] == 503:
+    #         push.retry()
+    #     else:
+    #         raise
     
 
     
