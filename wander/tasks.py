@@ -42,7 +42,7 @@ def pull(settings, google_settings, user, folder, messageid):
             print "Unexpected error:", e
             return
 
-        push.delay(settings, google_settings, messageid, content)
+        #push.delay(settings, google_settings, messageid, content)
     except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
         print "Imap error: {}".format(e)
         # Celery can't pickle the imap errors
