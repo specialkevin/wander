@@ -38,7 +38,7 @@ def pull(settings, google_settings, user, folder, messageid):
         message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
         try:
             message.save()
-        except (mongoengine.base.ValidationError, mongoengine.base.OperationError) as e:
+        except (mongoengine.base.ValidationError, mongoengine.queryset.OperationError) as e:
             print "Unexpected error:", e
             return
 
