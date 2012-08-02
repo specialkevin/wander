@@ -251,6 +251,7 @@ def get_mail(settings, google_settings, userfile):
             user = user.strip()
             messages = StoredMessage.objects.filter(username = user)
             completed_messages = [message.message_id for message in messages if message.migrated]
+            
             imap = imap_connect(settings, user)
             response_code, raw_folder_list = imap.list()
             for folder in raw_folder_list:
@@ -258,16 +259,22 @@ def get_mail(settings, google_settings, userfile):
                 folder = folder.split('"')[1::2][1]
                 if folder in ['Contacts', 'Chats', 'Emailed Contacts']:
                     continue
-                
-                # Get all the message uids
-                imap.select(folder, True)
-                response_code, ids = imap.uid('search', None, 'ALL')
-                for messageid in ids[0].split():
-                    print "Starting import on message number {}\r".format(count),
-                    if messageid not in completed_messages:
-                        pull.delay(settings, google_settings, user, folder, messageid)
-                        count += 1
 
+                while True:
+                    # Get all the message uids
+                    try:
+                        imap.select(folder, True)
+                        response_code, ids = imap.uid('search', None, 'ALL')
+                        for messageid in ids[0].split():
+                            print "Starting import on message number {}\r".format(count),
+                            if messageid not in completed_messages:
+                                pull.delay(settings, google_settings, user, folder, messageid)
+                                count += 1
+                    except imap.error, e:
+                        print "Got imap error: {}".format(e)
+                        continue
+                    break
+                
             
                     
 

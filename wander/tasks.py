@@ -20,11 +20,7 @@ def pull(settings, google_settings, user, folder, messageid):
     '''
     mongoengine.connect('stored_messages')
     try:
-        try:
-            imap = imap_connect(settings, user)
-        except imap.error, e:
-            print "Unexpected error: {}".format(e)
-            return
+        imap = imap_connect(settings, user)
         imap.select(folder, True)
         result, data = imap.uid('fetch', messageid, '(RFC822 FLAGS)')
         imap.logout()
@@ -47,8 +43,8 @@ def pull(settings, google_settings, user, folder, messageid):
             return
 
         push.delay(settings, google_settings, messageid, content)
-    except imap.abort, e:
-        print "Abort error: {}".format(e)
+    except imap.error, e:
+        print "Imap error: {}".format(e)
         pull.retry()
 
 @celery.task(default_retry_delay = 61)
