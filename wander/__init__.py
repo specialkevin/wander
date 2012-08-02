@@ -264,7 +264,7 @@ def get_mail(settings, google_settings, userfile):
                 response_code, ids = imap.uid('search', None, 'ALL')
                 for messageid in ids[0].split():
                     print "Starting import on message number {}\r".format(count),
-                    if messageid not in complete_messages:
+                    if messageid not in completed_messages:
                         pull.delay(settings, google_settings, user, folder, messageid)
                         count += 1
 
