@@ -38,13 +38,14 @@ def pull(settings, google_settings, user, folder, messageid):
         message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
         try:
             message.save()
-        except (mongoengine.base.ValidationError, mongoengine.queryset.OperationError) as e:
+        except (mongoengine.base.ValidationError, mongoengine.base.OperationError) as e:
             print "Unexpected error:", e
             return
 
         push.delay(settings, google_settings, messageid, content)
-    except:
-        print "Unexpected error:", sys.exc_info()[0]
+    except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
+        print "Imap error: {}".format(e)
+        # Celery can't pickle the imap errors
         sys.exc_clear()
         pull.retry()
 
