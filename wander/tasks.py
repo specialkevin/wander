@@ -72,7 +72,7 @@ def push(settings, google_settings, messageid, content):
                 push.retry()
             else:
                 raise
-    else IOError:
+    except IOError:
         sys.exc_clear()
         push.retry()
 
