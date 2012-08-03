@@ -18,7 +18,7 @@ class MailMigration(object):
         self.ga_client.ProgrammaticLogin()
 
 
-    def migrate(username, message, properties, labels):
+    def migrate(self, username, message, properties, labels):
         self.ga_client.ImportMail(user_name=username,
                                   mail_message=message,
                                   mail_item_properties=properties,
