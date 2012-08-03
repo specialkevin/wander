@@ -54,7 +54,6 @@ def push(settings, google_settings, messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
-    print "Got push"
     mongoengine.connect('stored_messages')
 
     try:
