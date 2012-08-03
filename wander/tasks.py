@@ -33,7 +33,7 @@ def pull(settings, google_settings, user, folder, messageid):
             item_properties.append('IS_SENT')
 
         # munge me some unicode
-        content = content.decode('utf-8', errors='ignore')
+        content = content.decode('utf-8', errors='ignore').encode('utf-8')
 
         message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
         try:
@@ -72,7 +72,8 @@ def push(settings, google_settings, messageid, content):
                 push.retry()
             else:
                 raise
-    except:
+    except UnicodeEncodeError:
+        print ""
         push.retry()
 
     
