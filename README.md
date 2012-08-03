@@ -18,6 +18,10 @@ This will pull down a list of user accounts from your Zimbra server and then cre
 
     $ wander accounts
 
+This will pull down a specific users info from Zimbra and create the corresponding account in Google Apps.
+
+    $ wander accounts <username>
+
 ### Migrate Contacts
 
 This will migrate all contacts from Zimbra to Google for the specified user at the command-line.
