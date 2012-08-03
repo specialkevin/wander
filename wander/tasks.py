@@ -13,12 +13,15 @@ from wander.google import MailMigration
 celery = Celery('tasks')
 celery.config_from_object(celeryconfig)
 
+migration = MailMigration(google_settings)
+mongoengine.connect('stored_messages')
+
 @celery.task(default_retry_delay = 61)
 def pull(settings, google_settings, user, folder, messageid):
     '''
     Pulls a message from zimbra and stores it in Mongo
     '''
-    mongoengine.connect('stored_messages')
+
     try:
         imap = imap_connect(settings, user)
         imap.select(folder, True)
@@ -54,7 +57,7 @@ def push(settings, google_settings, messageid, content):
     '''
     Pulls a message from Mongo and pushs it into Google Apps
     '''
-    mongoengine.connect('stored_messages')
+
     try:
         try:
             message = StoredMessage.objects.get(message_id = messageid)
@@ -62,7 +65,6 @@ def push(settings, google_settings, messageid, content):
             print "Message does not exist in mongo id: {}".format(messageid)
 
         try:
-            migration = MailMigration(google_settings)
             migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.labels)
             message.migrated = True
             message.save()
