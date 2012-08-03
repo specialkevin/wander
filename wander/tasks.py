@@ -64,7 +64,10 @@ def push(settings, google_settings, messageid, content):
 
     try:
         migration = MailMigration(google_settings)
-        #migration.migrate(message.username, content, message.item_properties, message.lables)
+        migration.migrate(message.username, content, message.item_properties, message.lables)
+        message.migrated = True
+        message.save()
+        
     except AppsForYourDomainException, e:
         if e['status'] == 503:
             push.retry()
