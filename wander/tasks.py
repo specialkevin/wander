@@ -55,23 +55,25 @@ def push(settings, google_settings, messageid, content):
     Pulls a message from Mongo and pushs it into Google Apps
     '''
     mongoengine.connect('stored_messages')
-
     try:
-        message = StoredMessage.objects.get(message_id = messageid)
-    except DoesNotExist:
-        print "Message does not exist in mongo id: {}".format(messageid)
+        try:
+            message = StoredMessage.objects.get(message_id = messageid)
+        except DoesNotExist:
+            print "Message does not exist in mongo id: {}".format(messageid)
 
-    try:
-        migration = MailMigration(google_settings)
-        migration.migrate(message.username, content, message.item_properties, message.labels)
-        message.migrated = True
-        message.save()
-        
-    except AppsForYourDomainException, e:
-        if e['status'] == 503:
-            push.retry()
-        else:
-            raise
-    
+        try:
+            migration = MailMigration(google_settings)
+            migration.migrate(message.username, content, message.item_properties, message.labels)
+            message.migrated = True
+            message.save()
+
+        except AppsForYourDomainException, e:
+            if e['status'] == 503:
+                push.retry()
+            else:
+                raise
+    else IOError:
+        sys.exc_clear()
+        push.retry()
 
     
