@@ -55,12 +55,12 @@ def push(settings, google_settings, messageid, content):
     Pulls a message from Mongo and pushs it into Google Apps
     '''
     print "Got push"
-    # mongoengine.connect('stored_messages')
+    mongoengine.connect('stored_messages')
 
-    # try:
-    #     message = StoredMessage.objects.get(message_id = messageid)
-    # except DoesNotExist:
-    #     print "Message does not exist in mongo id: {}".format(messageid)
+    try:
+        message = StoredMessage.objects.get(message_id = messageid)
+    except DoesNotExist:
+        print "Message does not exist in mongo id: {}".format(messageid)
 
     # try:
     #     migration = MailMigration(google_settings)
