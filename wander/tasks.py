@@ -33,7 +33,7 @@ def pull(settings, google_settings, user, folder, messageid):
             item_properties.append('IS_SENT')
 
         # munge me some unicode
-        content = content.decode('utf-8', errors='ignore').encode('utf-8')
+        content = content.decode('utf-8', errors='ignore')
 
         message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
         try:
@@ -63,7 +63,7 @@ def push(settings, google_settings, messageid, content):
 
         try:
             migration = MailMigration(google_settings)
-            migration.migrate(message.username, content, message.item_properties, message.labels)
+            migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.labels)
             message.migrated = True
             message.save()
 
