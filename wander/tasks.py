@@ -62,14 +62,14 @@ def push(settings, google_settings, messageid, content):
     except DoesNotExist:
         print "Message does not exist in mongo id: {}".format(messageid)
 
-    # try:
-    #     migration = MailMigration(google_settings)
-    #     migration.migrate(message.username, content, message.item_properties, message.lables)
-    # except AppsForYourDomainException, e:
-    #     if e['status'] == 503:
-    #         push.retry()
-    #     else:
-    #         raise
+    try:
+        migration = MailMigration(google_settings)
+        #migration.migrate(message.username, content, message.item_properties, message.lables)
+    except AppsForYourDomainException, e:
+        if e['status'] == 503:
+            push.retry()
+        else:
+            raise
     
 
     
