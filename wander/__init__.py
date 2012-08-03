@@ -274,6 +274,7 @@ def get_mail(settings, google_settings, userfile):
                     except imap.error, e:
                         print "Got imap error: {}".format(e)
                         time.sleep(1)
+                        imap = imap_connect(settings, user)
                         continue
                     break
                 
