@@ -264,6 +264,8 @@ def get_mail(settings, google_settings, userfile):
                 while True:
                     # Get all the message uids
                     try:
+                        if count > 100:
+                            return
                         imap.select(folder, True)
                         response_code, ids = imap.uid('search', None, 'ALL')
                         for messageid in ids[0].split():
