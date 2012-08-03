@@ -64,7 +64,7 @@ def push(settings, google_settings, messageid, content):
 
     try:
         migration = MailMigration(google_settings)
-        migration.migrate(message.username, content, message.item_properties, message.lables)
+        migration.migrate(message.username, content, message.item_properties, message.labels)
         message.migrated = True
         message.save()
         
