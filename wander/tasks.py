@@ -7,11 +7,16 @@ from gdata.apps.service import AppsForYourDomainException
 
 from wander import celeryconfig
 from wander import imap_connect
+from wander import read_config
 from wander.mail import StoredMessage
 from wander.google import MailMigration
 
+google_settings = dict(read_config('google'))
+
+
 celery = Celery('tasks')
 celery.config_from_object(celeryconfig)
+
 
 migration = MailMigration(google_settings)
 mongoengine.connect('stored_messages')
