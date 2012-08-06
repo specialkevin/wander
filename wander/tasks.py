@@ -4,6 +4,8 @@ import mongoengine
 from celery import Celery
 from mongoengine.queryset import DoesNotExist
 from gdata.apps.service import AppsForYourDomainException
+from pprint import pprint
+
 
 from wander import celeryconfig
 from wander import imap_connect
@@ -71,12 +73,12 @@ def pull(settings, google_settings, user, folder, messageid):
         if e.error_code == 503:
             pull.retry()
         else:
-            print "Unexpected Apps error:{} {}".format(sys.exc_info()[0], (sys.exc_info()[0]).__dict__)
+            print "Unexpected Apps error: {}".format(e)
             sys.exc_clear()
             pull.retry()
 
     except:
-        print "Unexpected error:{} {}".format(sys.exc_info()[0], (sys.exc_info()[0]).__dict__)
+        print "Unexpected error:{}".format(sys.exc_info())
         sys.exc_clear()
         pull.retry()
 
