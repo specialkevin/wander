@@ -50,18 +50,11 @@ def pull(settings, google_settings, user, folder, messageid):
             print "Unexpected error:", e
             return
 
-        push.delay(settings, google_settings, messageid, content)
     except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
         print "Imap error: {}".format(e)
         # Celery can't pickle the imap errors
         sys.exc_clear()
         pull.retry()
-
-@celery.task(default_retry_delay = 61)
-def push(settings, google_settings, messageid, content):
-    '''
-    Pulls a message from Mongo and pushs it into Google Apps
-    '''
 
     try:
         try:
@@ -79,8 +72,11 @@ def push(settings, google_settings, messageid, content):
                 push.retry()
             else:
                 raise
-    except UnicodeEncodeError:
-        print ""
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
+        sys.exc_clear()
         push.retry()
+
+        
 
     
