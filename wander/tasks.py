@@ -71,7 +71,10 @@ def pull(settings, google_settings, user, folder, messageid):
         if e.error_code == 503:
             pull.retry()
         else:
-            raise
+            print "Unexpected Apps error:", sys.exc_info()[0]
+            sys.exc_clear()
+            pull.retry()
+
     except:
         print "Unexpected error:", sys.exc_info()[0]
         sys.exc_clear()
