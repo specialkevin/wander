@@ -44,7 +44,7 @@ def pull(settings, google_settings, user, folder, messageid):
         content = content.decode('utf-8', errors='ignore')
 
         messages = StoredMessage.objects.filter(message_id = messageid)
-        if len(message) == 0:
+        if len(messages) == 0:
             message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
         else:
             message.item_properties = item_properties
