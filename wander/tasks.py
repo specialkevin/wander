@@ -43,7 +43,12 @@ def pull(settings, google_settings, user, folder, messageid):
         # munge me some unicode
         content = content.decode('utf-8', errors='ignore')
 
-        message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
+        messages = StoredMessage.objects.filter(message_id = messageid)
+        if len(message) == 0:
+            message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
+        else:
+            message.item_properties = item_properties
+            message.labels = folder.split('/')
         try:
             message.save()
         except (mongoengine.base.ValidationError, mongoengine.queryset.OperationError) as e:
@@ -57,25 +62,19 @@ def pull(settings, google_settings, user, folder, messageid):
         pull.retry()
 
     try:
-        try:
-            message = StoredMessage.objects.get(message_id = messageid)
-        except DoesNotExist:
-            print "Message does not exist in mongo id: {}".format(messageid)
+        migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.labels)
+        message.migrated = True
+        message.save()
 
-        try:
-            migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.labels)
-            message.migrated = True
-            message.save()
-
-        except AppsForYourDomainException, e:
-            if e['status'] == 503:
-                push.retry()
-            else:
-                raise
+    except AppsForYourDomainException, e:
+        if e['status'] == 503:
+            pull.retry()
+        else:
+            raise
     except:
         print "Unexpected error:", sys.exc_info()[0]
         sys.exc_clear()
-        push.retry()
+        pull.retry()
 
         
 
