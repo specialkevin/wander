@@ -68,7 +68,7 @@ def pull(settings, google_settings, user, folder, messageid):
         message.save()
 
     except AppsForYourDomainException, e:
-        if e['status'] == 503:
+        if e.error_code == 503:
             pull.retry()
         else:
             raise
