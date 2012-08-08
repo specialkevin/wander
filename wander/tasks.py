@@ -88,6 +88,9 @@ def pull(settings, google_settings, user, folder, messageid):
             smtp.login(settings['admin'], settings['password'])
             smtp.sendmail(email_message.get('From'),to_addr, email_message.as_string())
             smtp.quit()
+            message.migrated = True
+            message.save()
+
         else:
             print "Unexpected Apps error: {}".format(e)
             sys.exc_clear()
