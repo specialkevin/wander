@@ -78,7 +78,7 @@ def pull(settings, google_settings, user, folder, messageid):
             # Try to forward message.
             email_message = email.message_from_string(content)
             # replace headers (could do other processing here)
-            to_addr = "{}@{}".format(message.username, google_settings['domain'])
+            to_addr = "{}@{}".format(message.username, google_settings['google_domain'])
             email_message.replace_header("To", to_addr)
 
             # open authenticated SMTP connection and send email_message with
