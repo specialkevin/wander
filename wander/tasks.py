@@ -78,7 +78,7 @@ def pull(settings, google_settings, user, folder, messageid):
             # Try to forward message.
             email_message = email.message_from_string(content)
             # replace headers (could do other processing here)
-            email_message.replace_header("From", from_addr)
+            to_addr = "{}@{}".format(message.username, google_settings['domain'])
             email_message.replace_header("To", to_addr)
 
             # open authenticated SMTP connection and send email_message with
@@ -86,7 +86,7 @@ def pull(settings, google_settings, user, folder, messageid):
             smtp = smtplib.SMTP(settings['host'], 25)
             smtp.starttls()
             smtp.login(settings['admin'], settings['password'])
-            smtp.sendmail(email_message.get('From'), "{}@{}".format(message.username, google_settings['domain']), email_message.as_string())
+            smtp.sendmail(email_message.get('From'),to_addr, email_message.as_string())
             smtp.quit()
         else:
             print "Unexpected Apps error: {}".format(e)
