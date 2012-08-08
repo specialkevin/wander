@@ -76,6 +76,8 @@ def pull(settings, google_settings, user, folder, messageid):
             pull.retry()
         elif 'Invalid RFC 822 Message' in str(e):
             # Try to forward message.
+            if isinstance(content, unicode):
+                msg_text = content.encode("utf-8")
             email_message = email.message_from_string(content)
             # replace headers (could do other processing here)
             to_addr = "{}@{}".format(message.username, google_settings['google_domain'])
