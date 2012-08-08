@@ -1,5 +1,7 @@
 import sys
 import imaplib
+import smtplib
+import email
 import mongoengine
 from celery import Celery
 from mongoengine.queryset import DoesNotExist
@@ -72,6 +74,20 @@ def pull(settings, google_settings, user, folder, messageid):
     except AppsForYourDomainException, e:
         if e.error_code == 503:
             pull.retry()
+        elif 'Invalid RFC 822 Message' in str(e):
+            # Try to forward message.
+            email_message = email.message_from_string(content)
+            # replace headers (could do other processing here)
+            email_message.replace_header("From", from_addr)
+            email_message.replace_header("To", to_addr)
+
+            # open authenticated SMTP connection and send email_message with
+            # specified envelope from and to addresses
+            smtp = smtplib.SMTP(settings['host'], 25)
+            smtp.starttls()
+            smtp.login(settings['admin'], settings['password'])
+            smtp.sendmail(email_message.get('From'), "{}@{}".format(message.username, google_settings['domain']), email_message.as_string())
+            smtp.quit()
         else:
             print "Unexpected Apps error: {}".format(e)
             sys.exc_clear()
