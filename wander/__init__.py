@@ -250,8 +250,6 @@ def get_mail(settings, google_settings, userfile):
         count = 0
         for user in f.readlines():
             user = user.strip()
-            messages = StoredMessage.objects.filter(username = user)
-            completed_messages = [message.message_id for message in messages if message.migrated]
 
             while True:
                 try:
@@ -271,6 +269,8 @@ def get_mail(settings, google_settings, userfile):
                 if folder in ['Contacts', 'Chats', 'Emailed Contacts']:
                     continue
 
+                messages = StoredMessage.objects.filter(username = user, folder=folder)
+                completed_messages = [message.message_id for message in messages if message.migrated]                    
                 while True:
                     # Get all the message uids
                     try:

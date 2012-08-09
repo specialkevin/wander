@@ -47,16 +47,16 @@ def pull(settings, google_settings, user, folder, messageid):
         # munge me some unicode
         content = content.decode('utf-8', errors='ignore')
 
-        messages = StoredMessage.objects.filter(message_id = messageid)
+        messages = StoredMessage.objects.filter(message_id = messageid, username = user, folder = folder)
         if len(messages) == 0:
-            message = StoredMessage(message_id = messageid, item_properties = item_properties, labels=folder.split('/'), username = user)
+            message = StoredMessage(message_id = messageid, item_properties = item_properties, folder=folder, username = user)
         else:
             message = messages[0]
             message.item_properties = item_properties
             message.labels = folder.split('/')
         try:
             message.save()
-        except (mongoengine.base.ValidationError, mongoengine.queryset.OperationError) as e:
+        except mongoengine.base.ValidationError as e:
             print "Unexpected error:", e
             return
 
