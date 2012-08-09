@@ -288,8 +288,8 @@ def get_mail(settings, google_settings, userfile):
                         continue
                     break
                 
-            
                     
+    print "Started import on total {}".format(count)
 
             
 def auth_google(settings):
