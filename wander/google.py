@@ -37,14 +37,15 @@ class Accounts(object):
         return self.ga_client.RetrieveUser(user[0])
 
     def create_account(self, user, user_info, password):
-        first_name = user_info['givenName']
-        last_name = user_info['sn']
-        display_name = user_info['displayName']
+        first_name = user_info['givenName'] if 'givenName' in user_info  else 'NotAvailable'
+        last_name = user_info['sn'] if 'sn' in user_info else 'NotAvailable'
+        display_name = user_info['displayName'] if 'displayName' in user_info else user
         users_errors = []
         try:
             self.ga_client.CreateUser(user_name=user, family_name = last_name, 
                 given_name = first_name, password = password, suspended = False, admin = None, 
                 quota_limit = None, password_hash_function = None, change_password = None)
+            print 'Created %s account in Google Apps' % user
         except gdata.client.RequestError:
             stderr.write('There was an error with Google Apps for %s.\n' % user)
             return user
@@ -64,7 +65,7 @@ class Contacts(object):
         return
 
     def create_contacts(self, contacts):
-        stdout.write('Migrating Contacts to Google....\n')
+        print('Migrating Contacts to Google....')
         for contact in contacts:
             new_contact = gdata.contacts.data.ContactEntry()
 
@@ -79,8 +80,8 @@ class Contacts(object):
             firstName = contact['firstName'] if contact['firstName'] else ' '
             lastName = contact['lastName'] if contact['lastName'] else ' '
             
-            if contact['fullName'] and contact['firstName'] and contact['lastName']:
-                next
+            if not any([contact['fullName'], contact['firstName'] ,contact['lastName']]):
+                continue
             else:
                 new_contact.name = gdata.data.Name(
                     given_name = gdata.data.GivenName(text=firstName),
@@ -125,4 +126,5 @@ class Contacts(object):
                 new_contact.content = atom.data.Content(text = '\n'.join(contact.values()))
     
                 self.gd_client.CreateContact(new_contact)
+                print('Created contact {}'.format(full_name))
         return

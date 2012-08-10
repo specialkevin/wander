@@ -22,7 +22,7 @@ from gdata.apps import client
 import wander.google
 
 def get_user_info(fabric_settings, user, desired_info):
-    stdout.write('Getting User Info from Zimbra for %s.\n' % user)
+    print 'Getting User Info from Zimbra for %s.\n' % user
     command = fabric_settings['zmprov_path'] + ' ga '+ user
     for i in desired_info:
         command = command + ' ' + i
@@ -84,15 +84,16 @@ def create_accounts(settings, username=None):
     google_apps = wander.google.Accounts(settings)
     errant_users = []
     if username:
-        stdout.write('Creating user account in Google for %s\n' % username)
+        print 'Creating user account in Google for %s\n' % username
         user_info = get_user_info(settings, username, ['givenName', 'sn', 'displayName'])
         errant_users.append(google_apps.create_account(username, user_info, settings['temp_password']))
     else:
         user_info = get_user_list_info(settings, get_usernames(settings), ['givenName', 'sn', 'displayName'])
         for account in user_info:
             errant_users.append(google_apps.create_account(account['username'], account, settings['temp_password']))
-    for user in errant_users:
-        stdout.write('This account errored out and wasn\'t able to be created: %s\n' % user)
+    if not errant_users:
+        for user in errant_users:
+            print 'This account errored out and wasn\'t able to be created: %s\n' % user
     return
 
 def make_fabric_call(fabric_settings, command):
@@ -101,7 +102,7 @@ def make_fabric_call(fabric_settings, command):
         host_string = fabric_settings['server'], user = fabric_settings['zimbra_user'],
         key_filename = os.path.expanduser(fabric_settings['keypath'])
     ):
-        stdout.write('Running \' %s \' via Fabric.\n' % command)
+        print 'Running \' %s \' via Fabric.\n' % command
         output = run(command)
     return output
 
