@@ -17,13 +17,7 @@ from fabric.context_managers import settings, hide
 
 from gdata.apps import client
 
-<<<<<<< HEAD
-from wander.tasks import pull
-
-__all__ = ['imap_connect']
-=======
 import wander.google
->>>>>>> 937b4956edb18836918429f22a37f58b9d04e80c
 
 def get_user_info(fabric_settings, user, desired_info):
     print 'Getting User Info from Zimbra for %s.\n' % user
