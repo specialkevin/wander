@@ -260,7 +260,7 @@ def get_mail(settings, google_settings, userfile):
                     response_code, raw_folder_list = imap.list()
                 except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
                     print "Got imap error for user: {} : {}".format(user, e)
-                    errot_count += 1
+                    error_count += 1
                     imap.logout()
                     time.sleep(1)
                     imap = imap_connect(settings, user)
@@ -268,7 +268,7 @@ def get_mail(settings, google_settings, userfile):
                 break
 
             if error_count > 9:
-                break
+                continue
                 
                 
             for folder in raw_folder_list:
