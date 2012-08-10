@@ -16,3 +16,9 @@ zmaccts_path = /opt/zimbra/bin/zmaccts
 host = example.com
 admin = administration
 password = VerySecurePassword
+
+[google]
+google_admin = admin.user@example.com
+google_domain = example.com
+google_password = SuperDuperStrongPassword
+temp_password = AVeryStrongTempPasswordForEveryUserInitially
