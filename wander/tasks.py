@@ -53,7 +53,7 @@ def pull(settings, google_settings, user, folder, messageid):
         else:
             message = messages[0]
             message.item_properties = item_properties
-            message.labels = folder.split('/')
+            message.folder = folder
         try:
             message.save()
         except mongoengine.base.ValidationError as e:
@@ -67,7 +67,7 @@ def pull(settings, google_settings, user, folder, messageid):
         pull.retry()
 
     try:
-        migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.labels)
+        migration.migrate(message.username, content.encode('utf-8'), message.item_properties, message.folder.split('/'))
         message.migrated = True
         message.save()
 
