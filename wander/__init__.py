@@ -257,6 +257,7 @@ def get_mail(settings, google_settings, userfile):
                     response_code, raw_folder_list = imap.list()
                 except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
                     print "Got imap error: {}".format(e)
+                    imap.logout()
                     time.sleep(1)
                     imap = imap_connect(settings, user)
                     continue
@@ -283,6 +284,7 @@ def get_mail(settings, google_settings, userfile):
                                 count += 1
                     except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
                         print "Got imap error: {}".format(e)
+                        imap.logout()
                         time.sleep(1)
                         imap = imap_connect(settings, user)
                         continue
