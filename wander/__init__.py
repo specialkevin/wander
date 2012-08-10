@@ -250,19 +250,26 @@ def get_mail(settings, google_settings, userfile):
         count = 0
         for user in f.readlines():
             user = user.strip()
-
+            
+            error_count = 0
             while True:
+                if error_count > 9:
+                    break
                 try:
                     imap = imap_connect(settings, user)
                     response_code, raw_folder_list = imap.list()
                 except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
-                    print "Got imap error: {}".format(e)
+                    print "Got imap error for user: {} : {}".format(user, e)
+                    errot_count += 1
                     imap.logout()
                     time.sleep(1)
                     imap = imap_connect(settings, user)
                     continue
                 break
 
+            if error_count > 9:
+                break
+                
                 
             for folder in raw_folder_list:
                 # parse
