@@ -262,7 +262,10 @@ def get_mail(settings, google_settings, userfile):
                 except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
                     print "Got imap error for user: {} : {}".format(user, e)
                     error_count += 1
-                    imap.logout()
+                    try:
+                        imap.logout()
+                    except:
+                        pass
                     time.sleep(1)
                     continue
                 break
