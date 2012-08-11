@@ -279,6 +279,7 @@ def get_mail(settings, google_settings, userfile):
 
                 messages = StoredMessage.objects.filter(username = user, folder=folder)
                 completed_messages = [message.message_id for message in messages if message.migrated]                    
+                error = False
                 while True:
                     # Get all the message uids
                     try:
