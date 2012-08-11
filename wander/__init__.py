@@ -264,7 +264,6 @@ def get_mail(settings, google_settings, userfile):
                     error_count += 1
                     imap.logout()
                     time.sleep(1)
-                    imap = imap_connect(settings, user)
                     continue
                 break
 
@@ -283,6 +282,8 @@ def get_mail(settings, google_settings, userfile):
                 while True:
                     # Get all the message uids
                     try:
+                        if error:
+                            imap = imap_connect(settings, user)
                         imap.select(folder, True)
                         response_code, ids = imap.uid('search', None, 'ALL')
                         for messageid in ids[0].split():
@@ -290,11 +291,12 @@ def get_mail(settings, google_settings, userfile):
                                 print "Starting import on message number {}\r".format(count),
                                 pull.delay(settings, google_settings, user, folder, messageid)
                                 count += 1
+                        error = False
                     except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
                         print "Got imap error: {}".format(e)
+                        error = True
                         imap.logout()
                         time.sleep(1)
-                        imap = imap_connect(settings, user)
                         continue
                     break
                 
