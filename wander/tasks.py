@@ -78,7 +78,7 @@ def pull(settings, google_settings, user, folder, messageid):
             # Try to forward message.
             if isinstance(content, unicode):
                 msg_text = content.encode("ascii", "ignore")
-            email_message = email.message_from_string(content)
+            email_message = email.message_from_string(msg_text)
             # replace headers (could do other processing here)
             to_addr = "{}@{}".format(message.username, google_settings['google_domain'])
             email_message.replace_header("To", to_addr)
