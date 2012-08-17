@@ -74,7 +74,7 @@ def pull(settings, google_settings, user, folder, messageid):
     except AppsForYourDomainException, e:
         if e.error_code == 503:
             pull.retry()
-        elif 'Invalid RFC 822 Message' in str(e):
+        elif 'Invalid RFC 822 Message' in str(e) or 'Permanent failure: BadAttachment' in str(e):
             # Try to forward message.
             if isinstance(content, unicode):
                 msg_text = content.encode("ascii", "ignore")
