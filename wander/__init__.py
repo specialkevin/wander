@@ -3,7 +3,9 @@ import os.path
 import requests
 import argparse
 import imaplib
+import time
 
+import mongoengine
 import gdata
 
 import csv
@@ -235,16 +237,77 @@ def imap_connect(settings, user):
     login_plain(imapconn, user, settings['password'], settings['admin'])
     return imapconn
 
-def get_mail(settings, username):
-    if username:
-        username = username[0]
-        imap = imap_connect(settings, username)
-        print imap.list()
-        return
-    else:
-        stderr.write("OH NOES, no user given\n")
-        exit(1)
+def get_mail(settings, google_settings, userfile):
+    '''
+    For each user, get a list of message ids and send them to celery to process
+    '''
+    from wander.tasks import pull
+    from wander.mail import StoredMessage
 
+    mongoengine.connect('stored_messages')
+
+    
+    with open(userfile[0]) as f:
+        count = 0
+        for user in f.readlines():
+            user = user.strip()
+            
+            error_count = 0
+            while True:
+                if error_count > 9:
+                    break
+                try:
+                    imap = imap_connect(settings, user)
+                    response_code, raw_folder_list = imap.list()
+                except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
+                    print "Got imap error for user: {} : {}".format(user, e)
+                    error_count += 1
+                    try:
+                        imap.logout()
+                    except:
+                        pass
+                    time.sleep(1)
+                    continue
+                break
+
+            if error_count > 9:
+                continue
+                
+                
+            for folder in raw_folder_list:
+                # parse
+                folder = folder.split('"')[1::2][1]
+                if folder in ['Contacts', 'Chats', 'Emailed Contacts']:
+                    continue
+
+                messages = StoredMessage.objects.filter(username = user, folder=folder)
+                completed_messages = [message.message_id for message in messages if message.migrated]                    
+                error = False
+                while True:
+                    # Get all the message uids
+                    try:
+                        if error:
+                            imap = imap_connect(settings, user)
+                        imap.select(folder, True)
+                        response_code, ids = imap.uid('search', None, 'ALL')
+                        for messageid in ids[0].split():
+                            if messageid not in completed_messages:
+                                print "Starting import on message number {}\r".format(count),
+                                pull.delay(settings, google_settings, user, folder, messageid)
+                                count += 1
+                        error = False
+                    except (imap.error, imap.abort, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
+                        print "Got imap error: {}".format(e)
+                        error = True
+                        imap.logout()
+                        time.sleep(1)
+                        continue
+                    break
+                
+                    
+    print "Started import on total {}".format(count)
+
+            
 def auth_google(settings):
     google_client = client.AppsClient(domain=settings['domain'])
     google_client.ssl = True
